@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Strict CSP: the only network access allowed is a single anonymous visit-count image
+     (GoatCounter) on the live site; connect-src 'none' still blocks all fetch/XHR/beacon. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: https://boeloep.goatcounter.com; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Unofficial, offline companion for Game Dev Tycoon: the best Audience/Platform/Genre/Topic combos, the 3-stage / 9-slider design guide, and a what-if explorer. Runs entirely in your browser — nothing you enter is uploaded.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1117">
+<link rel="canonical" href="https://gdt-assistant.com/">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GDT Assistant — unofficial Game Dev Tycoon companion">
+<meta property="og:description" content="Unofficial Game Dev Tycoon companion — combo recommendations, slider design guide, what-if explorer. Runs entirely in your browser.">
+<meta property="og:url" content="https://gdt-assistant.com/">
+<meta property="og:image" content="https://gdt-assistant.com/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gdt-assistant.com/assets/social-preview.png">
+<title>GDT Assistant — unofficial Game Dev Tycoon companion</title>
+<!-- pilot-buddy mark (simplified for small sizes: flat fills, thicker strokes, no glow filters/gradients), same figure as the inline header logo; data: URI is allowed by img-src -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='%23141b2e' stroke='%234a5a82' stroke-width='3'/%3E%3Cpath d='M12 44 Q32 36 52 44 L56 54 Q32 60 8 54 Z' fill='%23232f4d' stroke='%234a5a82' stroke-width='2'/%3E%3Crect x='19' y='18' width='7' height='26' rx='3.5' fill='%238fa0c8'/%3E%3Ccircle cx='22.5' cy='16' r='11' fill='%236ea8ff' stroke='%231c4fae' stroke-width='2.5'/%3E%3Crect x='38' y='28' width='18' height='18' rx='5' fill='%23a9b7d9' stroke='%233d4a6b' stroke-width='1.5'/%3E%3Ccircle cx='47' cy='20' r='8' fill='%23a9b7d9' stroke='%233d4a6b' stroke-width='1.5'/%3E%3Cline x1='47' y1='12' x2='47' y2='8' stroke='%238fa0c8' stroke-width='2'/%3E%3Ccircle cx='47' cy='7' r='2' fill='%23bcd6ff'/%3E%3Crect x='42.5' y='17.5' width='9' height='4.5' rx='2' fill='%230b0f1a'/%3E%3Ccircle cx='44.5' cy='19.7' r='1.3' fill='%23bcd6ff'/%3E%3Ccircle cx='49.5' cy='19.7' r='1.3' fill='%23bcd6ff'/%3E%3Ccircle cx='16' cy='52' r='3.2' fill='%232ea043'/%3E%3Ccircle cx='32' cy='54.5' r='3.2' fill='%23c69026'/%3E%3Ccircle cx='48' cy='52' r='3' fill='%23d64242'/%3E%3C/svg%3E">
+<style>
+:root{
+  /* Midnight — GitHub-dark (mockup 1, Gijs's pick 2026-07-02). Blue accent; ratings keep GDT green→red. */
+  --bg:#0b0f1a; --bg2:#151b2b; --panel2:#1a2136; --bg3:#1d2740; --line:#2a3550; --line2:#3d4a6b;
+  --tx:#eef2fb; --mut:#8fa0c8; --mut2:#808da7; --acc:#6ea8ff; --acc2:#3b82f6; --acc-soft:rgba(110,168,255,.35);
+  /* rating — vivid fills (dots/bars/sliders) */
+  --great:#2ea043; --good:#57ab5a; --okay:#c69026; --bad:#db6d28; --terr:#d64242;
+  /* rating — brighter, legible-on-dark text variants (words/values) */
+  --great-d:#56d364; --good-d:#8fd15a; --okay-d:#e3b341; --bad-d:#f0883e; --terr-d:#ff6a5e;
+  --great-bg:rgba(46,160,67,.14); --good-bg:rgba(87,171,90,.14); --okay-bg:rgba(198,144,38,.14); --bad-bg:rgba(219,109,40,.15); --terr-bg:rgba(214,66,66,.15);
+  /* rating — border tints (badges/strips/cards) */
+  --great-ln:rgba(63,185,80,.45); --good-ln:rgba(139,194,85,.45); --okay-ln:rgba(210,153,34,.45); --bad-ln:rgba(240,136,62,.45); --terr-ln:rgba(248,81,73,.45);
+  --bar:#1d2740; --trackoff:#2f3a54; --knob:#cdd5df; --tick:rgba(255,255,255,.22);
+  --scrim:rgba(3,6,15,.66);
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 3px 10px rgba(0,0,0,.25);
+  --shadow-lg:0 16px 40px -12px rgba(0,0,0,.65);
+  --glow:0 0 0 1px rgba(46,160,67,.55),0 8px 22px -10px rgba(46,160,67,.5);
+  --cat-explore:#6ea8ff; --cat-recs:#56d364; --cat-guide:#e3b341;
+  --bgfx:radial-gradient(1200px 620px at 12% -8%,rgba(110,168,255,.13),transparent 60%),radial-gradient(1100px 560px at 100% -5%,rgba(45,158,117,.11),transparent 55%),radial-gradient(950px 720px at 82% 112%,rgba(139,124,246,.10),transparent 55%);
+  --radius:10px; --dur:.18s;
+  --ease:cubic-bezier(.23,1,.32,1);
+  --ease-drawer:cubic-bezier(.32,.72,0,1);
+}
+/* Light theme — same structure, paper palette. Applied via html.light (☰ menu toggle). */
+html.light{
+  --bg:#f6f8fa; --bg2:#ffffff; --panel2:#f0f3f6; --bg3:#eef1f4; --line:#d5dbe1; --line2:#b6bfc9;
+  --tx:#1f2328; --mut:#59636e; --mut2:#676f7a; --acc:#1f883d; --acc2:#1a7f37; --acc-soft:rgba(31,136,61,.16);
+  --great:#1a7f37; --good:#2da44e; --okay:#9a6700; --bad:#bc4c00; --terr:#cf222e;
+  --great-d:#116329; --good-d:#1a7f37; --okay-d:#7d4e00; --bad-d:#953800; --terr-d:#a40e26;
+  --great-bg:rgba(26,127,55,.10); --good-bg:rgba(45,164,78,.10); --okay-bg:rgba(154,103,0,.10); --bad-bg:rgba(188,76,0,.10); --terr-bg:rgba(207,34,46,.10);
+  --great-ln:rgba(26,127,55,.35); --good-ln:rgba(45,164,78,.35); --okay-ln:rgba(154,103,0,.35); --bad-ln:rgba(188,76,0,.35); --terr-ln:rgba(207,34,46,.35);
+  --bar:#eaeef2; --trackoff:#cfd6dd; --knob:#57606a; --tick:rgba(0,0,0,.20);
+  --scrim:rgba(140,149,159,.30);
+  --shadow:0 1px 2px rgba(31,35,40,.08),0 3px 10px rgba(31,35,40,.06);
+  --shadow-lg:0 16px 40px -12px rgba(31,35,40,.28);
+  --glow:0 0 0 1px rgba(26,127,55,.45),0 8px 22px -10px rgba(26,127,55,.35);
+  --cat-explore:#0969da; --cat-recs:#1a7f37; --cat-guide:#926200;
+  --bgfx:radial-gradient(1000px 520px at 12% -8%,rgba(31,136,61,.08),transparent 60%),radial-gradient(900px 480px at 100% -5%,rgba(9,105,218,.06),transparent 55%);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bgfx),var(--bg); background-attachment:fixed; color:var(--tx);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;font-weight:650;letter-spacing:-.01em}
+a{color:var(--acc);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+::selection{background:var(--acc-soft)}
+
+/* ---------- layout ---------- */
+/* v2 experiment: full-width layout. Was max-width:1180px (narrow centered column); raised so the
+   page uses the whole window on normal/wide monitors without lines going absurd on ultrawide. */
+.app{max-width:1800px;margin:0 auto;padding:14px 18px 60px}
+/* v2: the three main panels (explorer/recs/guide) sit in a 2-column grid instead of stacking full-width.
+   Explorer+recs paired (pick a combo, see results, no scroll); guide spans both columns below. */
+/* round-4: explorer wider than build-next (Gijs's ask), same overall row height maintained by
+   shortening the build-next cards (see .fitbar max-width + tightened .card padding below). */
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start}
+.grid2 > .wide{grid-column:1/-1}
+@media(max-width:1000px){.grid2{grid-template-columns:1fr}}
+header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{font-size:18px}
+.brand .logo{display:block;width:46px;height:46px;flex:none}
+.brand .logo svg{display:block;width:100%;height:100%}
+.chip{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:20px;padding:2px 9px;white-space:nowrap}
+.chip.warn{color:var(--okay-d);border-color:var(--okay-ln);background:var(--okay-bg)}
+.spacer{flex:1}
+.toolbtn{border:1px solid var(--line);background:var(--bg2);border-radius:8px;padding:6px 11px;font-size:13px;color:var(--tx);box-shadow:var(--shadow);
+  transition:border-color var(--dur) ease,background var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.toolbtn:hover{border-color:var(--line2);background:var(--bg3)}}
+.toolbtn:active{transform:scale(.97)}
+.toolbtn .dot{display:inline-block;min-width:18px;text-align:center;font-size:11px;color:var(--mut);margin-left:4px}
+
+/* control bar */
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.mg-box{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:8px 12px;box-shadow:var(--shadow)}
+.mg-pickers{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut)}
+.mg-pickers.off{opacity:.35;pointer-events:none}
+select{font:inherit;color:var(--tx);background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:13px;transition:border-color var(--dur) ease}
+@media (hover:hover) and (pointer:fine){select:hover,.searchbox:hover,.datebar input:hover,.gform input:hover{border-color:var(--line2)}}
+select:focus,input:focus{outline:2px solid var(--acc);outline-offset:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+
+/* toggle switch */
+.switch{position:relative;display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.track{width:38px;height:21px;border-radius:20px;background:var(--trackoff);position:relative;transition:background var(--dur) var(--ease);flex:none}
+.track::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:var(--knob);box-shadow:0 1px 2px rgba(0,0,0,.25);
+  transition:transform var(--dur) var(--ease),background var(--dur) var(--ease)}
+.switch input:checked + .track{background:var(--acc2)}
+.switch input:checked + .track::after{transform:translateX(17px);background:#fff}
+.switch input:focus-visible + .track{outline:2px solid var(--acc);outline-offset:2px}
+
+.panel{animation:fadein .3s var(--ease);border:1px solid var(--line);border-radius:14px;padding:18px 20px 20px;background:var(--bg2);box-shadow:var(--shadow)}
+#sec-explorer{box-shadow:inset 0 3px 0 var(--cat-explore),var(--shadow);background:linear-gradient(180deg,color-mix(in srgb,var(--cat-explore) 8%,var(--bg2)),var(--bg2) 170px)}
+#sec-explorer .section-title{color:var(--cat-explore)}
+#sec-recs{box-shadow:inset 0 3px 0 var(--cat-recs),var(--shadow);background:linear-gradient(180deg,color-mix(in srgb,var(--cat-recs) 8%,var(--bg2)),var(--bg2) 170px)}
+#sec-recs .section-title{color:var(--cat-recs)}
+#sec-guide{box-shadow:inset 0 3px 0 var(--cat-guide),var(--shadow);background:linear-gradient(180deg,color-mix(in srgb,var(--cat-guide) 8%,var(--bg2)),var(--bg2) 170px)}
+#sec-guide .section-title{color:var(--cat-guide)}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.section-title{font-size:13.5px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px;display:flex;align-items:center;gap:9px}
+.section-title::before{content:"";width:12px;height:12px;border-radius:4px;background:currentColor;box-shadow:0 0 12px currentColor;flex:none}
+.muted{color:var(--mut)} .small{font-size:12px} .tiny{font-size:11px}
+.note{font-size:12px;color:var(--mut);background:var(--bg2);border:1px solid var(--line);
+  border-radius:9px;padding:10px 13px;margin:10px 0;box-shadow:var(--shadow)}
+.divider{height:1px;border:0;margin:30px 0;background:linear-gradient(90deg,transparent,var(--line2) 18%,var(--line2) 82%,transparent)}
+
+/* ---------- recommendation cards (horizontal, stacked) ---------- */
+.recs{display:flex;flex-direction:column;gap:13px}
+/* round-3: more breathing room between the rec-card stack and the "how these picks are scoped" toggle
+   sitting right below it — they were reading as one crowded block. */
+.scopedtog{margin-top:18px}
+/* round-3: score used to sit in a side-by-side grid column to the right of the title line. Gijs
+   wants the card reading top-down instead — title line, then score+bar, then fit pills — so .card is
+   now a plain stacked flex column and the score block is just the next child in DOM order (see
+   recCard()/researchCard()) rather than a separate grid area. */
+/* round-4: build-next cards shortened vertically (padding/gap trimmed) so the recs column's total
+   height roughly matches the now-wider explorer column — no text is cut, just tighter breathing room. */
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;box-shadow:inset 3px 0 0 var(--acc-soft),var(--shadow);
+  display:flex;flex-direction:column;gap:5px;
+  opacity:0;animation:cardin .28s var(--ease) forwards;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes cardin{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+.card.great{border-color:var(--great-ln);box-shadow:var(--glow)}
+.card .rank{font-size:11px;color:var(--mut);letter-spacing:.08em}
+/* round-3: vertical-align:middle on .audg was never reliable — "middle" aligns to the parent's
+   font metrics (half x-height above the baseline), which drifts depending on line-height and the
+   surrounding text's own metrics; that's why the badge kept sitting low no matter how it was tuned.
+   A flex row sidesteps font metrics entirely: every child (the plain text run before the badge, the
+   .audg badge, the .schip mkt pill) becomes its own flex item and align-items:center centers each
+   one on the row's actual geometric cross-axis — reliable regardless of font/line-height. Applies to
+   every .spec line: rec cards, research cards and the two explorer breakdown headers all share it. */
+.spec{display:flex;align-items:center;flex-wrap:wrap;font-size:16px;font-weight:650;margin:3px 0 2px;line-height:1.6;gap:3px 8px}
+/* round-4 fix: every visible run in a .spec header is its OWN flex child (.specseg) instead of a bare
+   text node — the old " · " literal text between spans got blockified into an anonymous flex item,
+   and flex trims leading/trailing whitespace off block-level boxes, so " · " silently collapsed to a
+   bare "·" jammed against its neighbours ("Business·PC·[E]"). Spacing now comes entirely from .spec's
+   own `gap`, never from whitespace in the markup. .specpair groups the audience badge + mkt pill as
+   their own tiny flex row (align-items:center) so their mutual centering doesn't depend on font-metric
+   vertical-align either. */
+.specsep{color:var(--mut2);font-weight:500}
+.specpair{display:inline-flex;align-items:center;gap:5px}
+.specpair .schip{margin-left:0}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;border-radius:5px;padding:2px 7px;margin-left:7px;vertical-align:middle}
+.badge.great{background:color-mix(in srgb,var(--great) 80%,black);color:#fff}
+.badge.res{background:color-mix(in srgb,var(--acc2) 88%,black);color:#fff}
+.fitline{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.fitnum{font-size:26px;font-weight:720;line-height:1;text-shadow:0 0 16px currentColor}
+/* round-4: was flex:1 (spanned almost the full card width); capped to a fixed length that still
+   reads clearly as a bar without dominating the shortened card. */
+.fitbar{flex:0 1 220px;height:8px;border-radius:5px;background:var(--bar);overflow:hidden}
+.fitbar > i{display:block;height:100%;width:100%;border-radius:5px;transform:scaleX(0);transform-origin:left;transition:transform .28s var(--ease)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.fchip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:10.5px;background:var(--panel2);cursor:help}
+.fchip .k{color:var(--mut)} .fchip .v{font-weight:650}
+.dotc{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.card .why{font-size:11px;margin:6px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+/* compact stat pill — carries the full sentence in title= so no info is lost, just hidden until hover */
+.schip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:650;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:5px;cursor:help;vertical-align:middle}
+.schip.r-bad,.schip.r-okay{border-color:currentColor}
+/* platform name inline in a merged card header; title= carries the platform's real-world name */
+.plat{cursor:help;border-bottom:1px dotted var(--mut2)}
+/* "?" info-toggle — collapses long explainer prose behind a native <details>, one mechanism used everywhere */
+.itog{display:inline-block;vertical-align:middle;font-weight:400;text-transform:none;letter-spacing:normal}
+.itog > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;border:1px solid var(--line);color:var(--mut);font-size:10px;font-weight:700;
+  background:var(--bg2);transition:border-color var(--dur) ease,color var(--dur) ease}
+.itog > summary::-webkit-details-marker{display:none}
+.itog > summary::marker{content:""}
+@media (hover:hover) and (pointer:fine){.itog > summary:hover{border-color:var(--acc);color:var(--acc)}}
+.itog[open] > summary{color:var(--acc);border-color:var(--acc)}
+.itog .ibody{margin-top:8px;max-width:520px}
+.itog .ibody p{margin:0 0 8px} .itog .ibody p:last-child{margin-bottom:0}
+/* ---------------- audience rating badges (Y/E/M) — own art, not the game's flat squares:
+   asymmetric corner radius + inner gradient + theme-color glow, distinct from ESRB-style flat fills.
+   Sized in em so it scales with whatever inline text context it sits in (14-20px target). ---------------- */
+/* a11y audit: the darker gradient stop was color-mix(...40%,bg2) — computed contrast of the
+   Y/E/M text against that stop failed WCAG AA (4.5:1) for okay/terr in dark and all 3 tiers in
+   light (worst case 3.90:1, terr/dark). 40%->25% keeps the gradient look but clears AA with margin
+   in both themes (worst case now 4.79:1 dark / 4.16->5.08 light) — computed via contrast.py. */
+.audg{display:inline-flex;align-items:center;justify-content:center;width:1.2em;height:1.2em;
+  border-radius:5px 2px 5px 2px;font-size:.76em;font-weight:800;line-height:1;vertical-align:middle;
+  border:1px solid var(--v-ln);color:var(--v-tx);
+  background:linear-gradient(155deg,color-mix(in srgb,var(--v-c) 25%,var(--bg2)),color-mix(in srgb,var(--v-c) 14%,var(--bg2)));
+  box-shadow:0 0 6px -1px var(--v-c),inset 0 1px 0 rgba(255,255,255,.16);cursor:help}
+.audg-great{--v-c:var(--great);--v-ln:var(--great-ln);--v-tx:var(--great-d)}
+.audg-okay{--v-c:var(--okay);--v-ln:var(--okay-ln);--v-tx:var(--okay-d)}
+.audg-terr{--v-c:var(--terr);--v-ln:var(--terr-ln);--v-tx:var(--terr-d)}
+/* "Open in combo explorer" link-button on each recommendation card (replaces the old slider-guide disclosure) */
+.openex{margin-top:6px;border-top:1px solid var(--line);padding-top:8px;text-align:left;
+  font-size:12.5px;color:var(--acc);transition:color var(--dur) ease}
+@media (hover:hover) and (pointer:fine){.openex:hover{color:var(--acc2);text-decoration:underline}}
+.openex:active{transform:scale(.99)}
+
+/* rating text colors */
+.r-great{color:var(--great-d)} .r-good{color:var(--good-d)} .r-okay{color:var(--okay-d)} .r-bad{color:var(--bad-d)} .r-terr{color:var(--terr-d)}
+.bg-great{background:var(--great)} .bg-good{background:var(--good)} .bg-okay{background:var(--okay)} .bg-bad{background:var(--bad)} .bg-terr{background:var(--terr)}
+
+/* ---------- slider guide ---------- */
+.guide{padding:0}                               /* flat section — the stage panels are the cards */
+.guide h3{font-size:15px;margin-bottom:3px}
+.dt{margin:12px 0 18px}
+.dt .dtbar{height:24px;border-radius:6px;overflow:hidden;display:flex;border:1px solid var(--line);position:relative}
+.dt .dtbar > span{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:650;color:#0c1117;transition:width .28s var(--ease)}
+.dt .design{background:#6cb6ff;color:#08243f}
+.dt .tech{background:#e3a857;color:#241402}
+.dt .lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:5px}
+.stage{margin:14px 0}
+.stage .sh{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;display:flex;gap:8px;align-items:center}
+.stage .sh::after{content:"";flex:1;height:1px;background:var(--line)}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
+.legend span{display:flex;align-items:center;gap:5px}
+/* slider-guide v7: estimate badge, "your best-scoring" learned alt (honesty/footnote text moved into .itog) */
+.estbadge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;border-radius:5px;padding:1px 6px;margin-left:7px;vertical-align:middle;color:var(--okay-d);background:var(--okay-bg);border:1px solid var(--okay-ln)}
+.vstage.est{border-color:var(--okay-ln);background:var(--okay-bg)}
+.learned{font-size:11.5px;color:var(--mut);background:var(--great-bg);border:1px solid var(--great-ln);border-radius:8px;padding:8px 11px;margin:8px 0 0;line-height:1.5}
+.learned b{color:var(--great-d)} .learned .sv{font-variant-numeric:tabular-nums;color:var(--tx)}
+
+/* ---------- explorer ---------- */
+.exgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.exgrid label{display:block;font-size:11px;color:var(--mut);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.exgrid select{width:100%}
+/* round-3 rebuild of the combo-explorer filter row. Root cause of the old collision: .exgrid is a
+   CSS Grid with minmax(150px,1fr) tracks — a fixed track width chosen with no regard for a child's
+   real min-content size. The Audience cell holds .audseg, a flex row of 3 buttons (icon+label+11px
+   padding each); flex items default to min-width:auto, which refuses to shrink them below their own
+   content width. So on any but very wide viewports .audseg's true width (300px+) exceeded its grid
+   track, and the overflow spilled out of the cell — painting underneath/behind the next DOM sibling
+   (the Platform <select>), which is exactly the "Everyone clipped, Mature hidden behind the dropdown"
+   Gijs saw. Fix: a dedicated flex row where Audience always claims its own full-width line (it's the
+   widest control by far) and the remaining selects wrap naturally in the space below — nothing is
+   ever forced narrower than its content, so nothing can overlap at any width. Also bumps the tiny
+   ALL-CAPS field labels + select text up a notch for readability (was 11px/13px, felt cramped). */
+.exfilters{display:flex;flex-wrap:wrap;gap:14px 20px;margin-bottom:16px}
+.exfilters>div{flex:1 1 180px;min-width:180px}
+.exfilters>div.exaud{flex:1 1 100%}
+.exfilters label{display:block;font-size:13px;color:var(--mut);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.exfilters select{width:100%;font-size:14px;padding:7px 9px}
+.breakdown{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:15px;margin-bottom:16px}
+.bd-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.bd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px}
+.ph{color:var(--mut2);font-weight:500}  /* "Pick …" placeholders in the empty explorer card */
+.warnstrip{border:1px solid var(--terr-ln);background:var(--terr-bg);color:var(--terr-d);border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+.warnstrip.show{display:block}
+.goodstrip{border:1px solid var(--great-ln);background:var(--great-bg);color:var(--great-d);border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+.goodstrip.show{display:block}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(2px);display:none;z-index:50;
+  opacity:0;transition:opacity var(--dur) var(--ease)}
+.overlay.open{display:block;opacity:1}
+.sheet{position:absolute;top:0;right:0;height:100%;width:min(440px,94vw);background:var(--bg2);border-left:1px solid var(--line);
+  display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s var(--ease-drawer);box-shadow:var(--shadow-lg)}
+.sheet.wide{width:min(560px,96vw)}
+.overlay.open .sheet{transform:none}
+.sheet header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.sheet header h2{font-size:15px}
+.sheet .body{padding:12px 16px;overflow:auto;flex:1}
+.sheet .foot{padding:11px 16px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.closeb{font-size:20px;color:var(--mut);width:30px;height:30px;border-radius:7px;line-height:1;transition:background var(--dur) ease,color var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.closeb:hover{background:var(--bg3);color:var(--tx)}}
+.closeb:active{transform:scale(.95)}
+.searchbox{width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:8px 11px;color:var(--tx);font-size:13px;margin-bottom:10px;transition:border-color var(--dur) ease}
+.bulk{display:flex;gap:8px;margin-bottom:10px}
+.bulk button{font-size:12px;color:var(--acc);padding:3px 6px;border-radius:6px;transition:background var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.bulk button:hover{background:var(--bg3)}}
+.bulk button:active{transform:scale(.96)}
+.list{display:flex;flex-direction:column;gap:1px}
+.item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;cursor:pointer;transition:background .12s var(--ease),transform .12s var(--ease)}
+@media (hover:hover) and (pointer:fine){.item:hover{background:var(--bg3)}}
+.item:active{transform:scale(.99)}
+.item input{width:16px;height:16px;accent-color:var(--acc2);flex:none}
+.item .nm{flex:1;font-size:13px}
+.item .tags{display:flex;gap:5px}
+.item .gtag{font-size:9.5px;border-radius:4px;padding:1px 5px;font-weight:700;color:var(--great-d);background:var(--great-bg);border:1px solid var(--great-ln)}
+.ext-flag{font-size:9px;color:var(--okay-d);border:1px solid var(--okay-ln);background:var(--okay-bg);border-radius:4px;padding:1px 5px}
+/* "offered to research" pill in the Topics overlay (locked topics only) */
+.offbtn{font-size:9.5px;font-weight:700;letter-spacing:.03em;border-radius:4px;padding:1px 7px;border:1px solid var(--line);color:var(--mut);flex:none;
+  transition:color var(--dur) ease,border-color var(--dur) ease,background var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.offbtn:hover{border-color:var(--acc);color:var(--acc)}}
+.offbtn:active{transform:scale(.96)}
+.offbtn.on{color:var(--acc);border-color:var(--acc);background:var(--acc-soft)}
+.count{font-size:12px;color:var(--mut)}
+.empty{color:var(--mut);font-size:13px;padding:30px 4px;text-align:center}
+/* tips / unlocks */
+.tsec{margin:0 0 22px}
+.tsec h4{font-size:13px;margin-bottom:9px;color:var(--tx);border-bottom:1px solid var(--line);padding-bottom:5px}
+.tlist{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:var(--mut);line-height:1.6}
+.tlist b{color:var(--tx);font-weight:600}
+.q{color:var(--okay-d);font-weight:700;font-size:11px}
+
+footer.foot-note{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.6}
+kbd{background:var(--bg3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px;font-size:11px}
+
+/* ---------- consent / privacy notice ---------- */
+.consent{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--bg2);border-top:1px solid var(--line);
+  padding:12px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 -8px 30px -14px rgba(0,0,0,.55);animation:slideUp .3s var(--ease)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.consent .ctext{flex:1;min-width:260px;font-size:12.5px;color:var(--mut);line-height:1.5}
+.consent .ctext strong{color:var(--tx)}
+.consent .cbtns{display:flex;gap:8px;flex-wrap:wrap}
+.consent[hidden]{display:none}
+.btn-primary{border:1px solid color-mix(in srgb,var(--acc2) 88%,black);background:color-mix(in srgb,var(--acc2) 88%,black);color:#fff;border-radius:8px;padding:7px 13px;font-size:13px;font-weight:600;transition:filter .15s ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.btn-primary:hover{filter:brightness(1.12)}}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{border:1px solid var(--line2);background:transparent;color:var(--tx);border-radius:8px;padding:7px 13px;font-size:13px;transition:background .15s ease,border-color .15s ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.btn-ghost:hover{background:var(--bg3)}}
+.btn-ghost:active{transform:scale(.97)}
+
+/* ---------- my games log ---------- */
+.gform{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-bottom:14px}
+.gform .full{grid-column:1/-1}
+.gform label{display:block;font-size:11px;color:var(--mut);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.gform select,.gform input{width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:5px 8px;color:var(--tx);font-size:13px}
+.addbtn{grid-column:1/-1;border:1px solid color-mix(in srgb,var(--acc2) 88%,black);background:color-mix(in srgb,var(--acc2) 88%,black);color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:600;transition:filter .15s ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.addbtn:hover{filter:brightness(1.12)}}
+.addbtn:active{transform:scale(.98)} .addbtn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.grm{font-size:18px;color:var(--mut);width:26px;height:26px;border-radius:6px;line-height:1;flex:none;transition:background var(--dur) ease,color var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.grm:hover{background:var(--terr-bg);color:var(--terr)}}
+.grm:active{transform:scale(.92)}
+.gnum{font-size:10px;color:var(--mut);width:18px;text-align:center;flex:none}
+.insights{font-size:12px;color:var(--mut);background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:4px 0 12px;line-height:1.55}
+.insights b{color:var(--tx)}
+
+/* ---------- repeat-game warning ---------- */
+.card.repeat{border-color:var(--okay-ln)}
+.repeatstrip{border:1px solid var(--okay-ln);background:var(--okay-bg);color:var(--okay-d);border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:none}
+.repeatstrip.show{display:block}
+
+/* ---------- about / buy links ---------- */
+.about{font-size:12px;color:var(--mut);line-height:1.65}
+.about strong{color:var(--tx)}
+.buylinks{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.buybtn{border:1px solid var(--line2);background:var(--bg2);border-radius:8px;padding:8px 13px;font-size:13px;color:var(--tx);transition:border-color .15s ease,background .15s ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.buybtn:hover{border-color:var(--acc);background:var(--bg3)}}
+.buybtn:active{transform:scale(.97)}
+
+/* ---------- header hamburger menu ---------- */
+.menu-wrap{position:relative}
+.menu-btn{font-size:16px;line-height:19px}   /* ☰ glyph; matches the other toolbtns' height */
+.dropdown{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:206px;background:var(--bg2);
+  border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:var(--shadow-lg);
+  transform-origin:top right;animation:ddin .16s var(--ease)}
+@keyframes ddin{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:none}}
+.ddi{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:7px;font-size:13px;color:var(--tx);transition:background var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.ddi:hover{background:var(--bg3)}}
+.ddi:active{transform:scale(.98)}
+.ddsep{height:1px;background:var(--line);margin:6px 4px}
+.ddtoggle{display:flex;align-items:center;justify-content:space-between;gap:9px;width:100%;padding:8px 10px;border-radius:7px;font-size:13px;color:var(--tx);transition:background var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.ddtoggle:hover{background:var(--bg3)}}
+.ddtoggle:active{transform:scale(.98)}
+.ddlabel{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;padding:4px 10px 6px}
+.seg{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:3px}
+.seg button{flex:1;padding:6px 4px;font-size:12px;color:var(--mut);border-radius:6px;transition:background var(--dur) ease,color var(--dur) ease,transform .13s var(--ease)}
+@media (hover:hover) and (pointer:fine){.seg button:hover{color:var(--tx)}}
+.seg button:active{transform:scale(.97)}
+.seg button.on{background:color-mix(in srgb,var(--acc2) 88%,black);color:#fff;font-weight:650}
+.seg button.locked{opacity:.4;cursor:not-allowed}
+@media (hover:hover) and (pointer:fine){.seg button.locked:hover{color:var(--mut)}}
+/* explorer audience segmented control sits in an exgrid cell — bigger than the stock .seg
+   chip size (round-2 feedback: was too crammed), scoped to .audseg so the menu's narrow
+   Game-length .seg is untouched */
+.audseg{width:100%;gap:6px;padding:5px}
+.audseg button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 10px;font-size:14px}
+/* green pulse on the Targeted-Audiences toggle when a locked audience is pressed */
+.mg-box.pulse{animation:pulseGreen .66s ease-in-out 3}
+@keyframes pulseGreen{
+  0%,100%{border-color:var(--line);box-shadow:none}
+  50%{border-color:var(--great);box-shadow:0 0 0 1px var(--great) inset, 0 0 18px -2px #2ea04399}
+}
+
+/* ---------- date inputs ---------- */
+.datebar .datein{display:inline-flex;align-items:center;gap:4px;color:var(--mut)}
+.datebar input{width:52px;background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:5px 7px;color:var(--tx);font-size:13px}
+
+/* ---------- vertical slider guide (in-game style) ---------- */
+.vstages{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.vstage{flex:1;min-width:228px;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:12px 14px 13px;box-shadow:var(--shadow)}
+.vstage .sh{margin-bottom:10px}
+.vsliders{display:flex;gap:8px;justify-content:space-around;align-items:flex-end}
+.vslider{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0}
+.vslider .pct{font-size:12px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vtrack{position:relative;width:40px;height:120px;background:var(--bg3);border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.vtrack > i{position:absolute;left:0;right:0;bottom:0;height:100%;transform:scaleY(0);transform-origin:bottom;border-radius:6px 6px 0 0;transition:transform .28s var(--ease)}
+.vtrack .tick40{position:absolute;left:0;right:0;bottom:40%;height:1px;background:var(--tick);z-index:1}
+.vslider .anm{font-size:11px;text-align:center;line-height:1.15;color:var(--tx)}
+.vslider .imp{font-size:9.5px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.03em;line-height:1.4;border-radius:5px;padding:0 6px;border:1px solid var(--line);cursor:help}
+.imp-great{color:var(--great-d);background:var(--great-bg);border-color:var(--great-ln)}
+.imp-good{color:var(--good-d);background:var(--good-bg);border-color:var(--good-ln)}
+.imp-okay{color:var(--okay-d);background:var(--okay-bg);border-color:var(--okay-ln)}
+.imp-bad{color:var(--bad-d);background:var(--bad-bg);border-color:var(--bad-ln)}
+.imp-terr{color:var(--terr-d);background:var(--terr-bg);border-color:var(--terr-ln)}
+.vslider .word{font-size:10px;font-weight:600}
+
+@media (max-width:560px){
+  .chips{grid-template-columns:1fr}
+  .vstage{min-width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  /* keep gentle opacity fades; remove movement & bar growth */
+  .card,.panel{animation:rmfade .18s ease both}
+  @keyframes rmfade{from{opacity:0}to{opacity:1}}
+  .fitbar > i{transform:scaleX(1) !important;transition:none !important}
+  .vtrack > i{transform:scaleY(1) !important;transition:none !important}
+  .dtbar > span{transition:none !important}
+  .sheet,.dropdown,.consent,.mg-box.pulse{animation:none !important;transition:opacity .15s ease !important;transform:none !important}
+  *{transition-duration:.12s !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f1-plate" x1="0" y1="0" x2="64" y2="64"><stop offset="0" stop-color="#1a2136"/><stop offset="1" stop-color="#0b0f1a"/></linearGradient><radialGradient id="f1-ball" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#bcd6ff"/><stop offset="45%" stop-color="#6ea8ff"/><stop offset="100%" stop-color="#3b82f6"/></radialGradient><linearGradient id="f1-base" x1="10" y1="40" x2="54" y2="58"><stop offset="0" stop-color="#26314e"/><stop offset="1" stop-color="#1d2740"/></linearGradient><linearGradient id="f1-bot" x1="34" y1="18" x2="52" y2="50"><stop offset="0" stop-color="#c7d3ec"/><stop offset="1" stop-color="#8fa0c8"/></linearGradient><filter id="f1-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect x="2" y="2" width="60" height="60" rx="14" fill="url(#f1-plate)" stroke="#3d4a6b" stroke-width="1.5"/><path d="M12 44 Q32 36 52 44 L56 54 Q32 60 8 54 Z" fill="url(#f1-base)" stroke="#3d4a6b" stroke-width="1.2"/><rect x="19" y="19" width="5" height="24" rx="2.5" fill="#8fa0c8"/><rect x="19" y="19" width="5" height="24" rx="2.5" fill="#3d4a6b" opacity="0.4"/><circle cx="21.5" cy="17" r="11" fill="#6ea8ff" opacity="0.4" filter="url(#f1-glow)"/><circle cx="21.5" cy="17" r="9" fill="url(#f1-ball)" stroke="#1c4fae" stroke-width="1.2"/><circle cx="18" cy="13.5" r="2.4" fill="#eef2fb" opacity="0.75"/><path d="M40 34 Q30 30 25 26" fill="none" stroke="#8fa0c8" stroke-width="3" stroke-linecap="round"/><circle cx="25" cy="26" r="2.1" fill="#c7d3ec" stroke="#3d4a6b" stroke-width="0.8"/><path d="M54 35 Q56 38 52 39" fill="none" stroke="#8fa0c8" stroke-width="3" stroke-linecap="round"/><circle cx="52" cy="39.3" r="2" fill="#c7d3ec" stroke="#3d4a6b" stroke-width="0.8"/><rect x="41" y="44" width="4" height="6" rx="2" fill="url(#f1-bot)" stroke="#3d4a6b" stroke-width="0.8"/><rect x="48" y="44" width="4" height="6" rx="2" fill="url(#f1-bot)" stroke="#3d4a6b" stroke-width="0.8"/><rect x="40" y="30" width="14" height="15" rx="4.5" fill="url(#f1-bot)" stroke="#3d4a6b" stroke-width="1"/><circle cx="47" cy="24" r="6.5" fill="url(#f1-bot)" stroke="#3d4a6b" stroke-width="1"/><line x1="47" y1="17.5" x2="47" y2="14" stroke="#8fa0c8" stroke-width="1.6" stroke-linecap="round"/><circle cx="47" cy="13" r="1.4" fill="#bcd6ff" filter="url(#f1-glow)"/><rect x="43.5" y="22" width="7" height="3.4" rx="1.4" fill="#0b0f1a"/><circle cx="45.2" cy="23.7" r="1" fill="#bcd6ff" filter="url(#f1-glow)"/><circle cx="48.8" cy="23.7" r="1" fill="#bcd6ff" filter="url(#f1-glow)"/><circle cx="16" cy="50" r="2.6" fill="#2ea043"/><circle cx="32" cy="52.5" r="2.6" fill="#c69026"/><circle cx="48" cy="50" r="2.4" fill="#d64242"/></svg></span><h1>GDT Assistant</h1>
+      <span class="chip" title="Data from the game's v1.7.9 tables, cross-checked with the GDT wiki. See CREDITS.md.">data v1.7.9</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="toolbtn" id="btnTopics">Topics<span class="dot" id="cntTopics">0</span></button>
+    <button class="toolbtn" id="btnPlatforms">Platforms<span class="dot" id="cntPlatforms">0</span></button>
+    <button class="toolbtn" id="btnGames">Games<span class="dot" id="cntGames">0</span></button>
+    <button class="toolbtn" id="btnTips">Tips</button>
+    <div class="menu-wrap">
+      <button class="toolbtn menu-btn" id="btnMenu" aria-label="Menu" aria-haspopup="true" aria-expanded="false" title="Backup &amp; game length">☰</button>
+      <div class="dropdown" id="menu" hidden role="menu">
+        <button class="ddi" id="btnExport">⭳ Export settings</button>
+        <button class="ddi" id="btnImport">⭱ Import settings</button>
+        <button class="ddi" id="btnFlags" hidden>🧪 Export review flags (JSON)</button>
+        <div class="ddsep"></div>
+        <label class="switch ddtoggle" id="themeBox" title="Switch between the dark (Midnight) and light theme.">
+          <span>☀ Light mode</span>
+          <input type="checkbox" id="themeToggle"><span class="track"></span>
+        </label>
+        <div class="ddsep"></div>
+        <div class="ddlabel">Game length</div>
+        <div class="seg" id="lenSeg" role="group" aria-label="Game length">
+          <button type="button" data-len="30">30 yr</button><button type="button" data-len="35">35 yr</button><button type="button" data-len="42">42 yr</button>
+        </div>
+        <div class="ddsep"></div>
+        <button class="ddi" id="btnPrivacy">🔒 Privacy &amp; data</button>
+        <button class="ddi" id="btnReset" style="color:var(--bad-d)">↺ Reset to defaults</button>
+      </div>
+    </div>
+    <input type="file" id="fileImport" accept="application/json" style="display:none">
+  </header>
+
+  <div class="controls">
+    <label class="switch mg-box" title="When off, only single-genre packages are recommended.">
+      <input type="checkbox" id="mgToggle"><span class="track"></span>
+      <span>Multi-genre unlocked</span>
+    </label>
+    <label class="switch mg-box" id="taBox" title="Off = only the 'Everyone' audience. Research Targeted Audiences in-game to also target Young &amp; Mature.">
+      <input type="checkbox" id="taToggle"><span class="track"></span>
+      <span>Targeted Audiences</span>
+    </label>
+    <div class="spacer"></div>
+    <div class="mg-pickers datebar" id="dateBar" title="Sets the platform-era hints. Uses the game length chosen in the ☰ menu.">
+      <span>in-game date:</span>
+      <span class="datein">Y<input type="number" id="gameYear" min="1" max="42" placeholder="–"></span>
+      <span class="datein">M<input type="number" id="gameMonth" min="1" max="12" placeholder="–"></span>
+    </div>
+  </div>
+
+  <!-- v2: explorer + recs paired side by side; guide spans full width below -->
+  <div class="grid2">
+  <!-- COMBO EXPLORER -->
+  <section class="panel" id="sec-explorer">
+    <div class="section-title">Combo explorer — what-if
+      <details class="itog"><summary title="About this section" aria-label="About this section">?</summary>
+        <div class="ibody note">Pick any combination to see the full fit breakdown and slider guide — ignores your enabled/owned filters.</div></details>
+    </div>
+    <div class="exfilters">
+      <div class="exaud"><label>Audience</label>
+        <div class="seg audseg" id="exAudSeg" role="group" aria-label="Audience">
+          <button type="button" data-aud="Young"><span class="audg audg-great" role="img" aria-label="Young" title="Young">Y</span><span>Young</span></button><button type="button" data-aud="Everyone"><span class="audg audg-okay" role="img" aria-label="Everyone" title="Everyone">E</span><span>Everyone</span></button><button type="button" data-aud="Mature"><span class="audg audg-terr" role="img" aria-label="Mature" title="Mature">M</span><span>Mature</span></button>
+        </div>
+      </div>
+      <div><label>Platform</label><select id="exPlat"></select></div>
+      <div><label>Genre mode</label><select id="exMode"><option value="single">Single</option><option value="multi">Two genres</option></select></div>
+      <div id="exGenreWrap"><label>Genre</label><select id="exGenre"></select></div>
+      <div id="exPrimWrap" hidden><label>Primary</label><select id="exPrim"></select></div>
+      <div id="exSecWrap" hidden><label>Secondary</label><select id="exSec"></select></div>
+      <div><label>Topic</label><select id="exTopic"></select></div>
+    </div>
+    <div id="exBreakdown"></div>
+    <div class="goodstrip" id="exGood"></div>
+    <div class="repeatstrip" id="exRepeat"></div>
+    <div class="warnstrip" id="exWarn"></div>
+    <div id="exGuide"></div>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section class="panel" id="sec-recs">
+    <div id="researchHost"></div>
+    <div id="recsHost"></div>
+  </section>
+
+  <!-- SLIDER GUIDE -->
+  <section class="panel wide" id="sec-guide">
+    <div class="section-title">Slider / development guide</div>
+    <div class="exgrid" style="max-width:520px">
+      <div><label>Mode</label><select id="gMode"><option value="single">Single genre</option><option value="multi">Two genres</option></select></div>
+      <div id="gGenreWrap"><label>Genre</label><select id="gGenre"></select></div>
+      <div id="gPrimWrap" hidden><label>Primary</label><select id="gPrim"></select></div>
+      <div id="gSecWrap" hidden><label>Secondary</label><select id="gSec"></select></div>
+    </div>
+    <div id="guideHost"></div>
+  </section>
+  </div>
+
+  <footer class="foot-note about" id="about">
+    <p><strong>GDT Assistant</strong> — an unofficial, fan-made, fully-offline companion for <strong>Game Dev Tycoon</strong>.
+    Fit ratings use the game's own pairing values (Great 1.0 · Good 0.9 · Okay 0.8 · Bad 0.7 · Terrible 0.6);
+    recommendations rank by combo fit (topic↔genre dominant), tie-broken by an estimated sales reach.
+    <span class="r-great">Great combinations</span> are badged; clearly bad combos are never recommended.</p>
+    <div class="buylinks">
+      <a class="buybtn" href="https://store.steampowered.com/app/239820/Game_Dev_Tycoon/" target="_blank" rel="noopener noreferrer">▶&nbsp;Buy on Steam</a>
+      <a class="buybtn" href="https://www.greenheartgames.com/app/game-dev-tycoon/" target="_blank" rel="noopener noreferrer">▶&nbsp;Official site</a>
+    </div>
+    <p><strong>Not affiliated with or endorsed by Greenheart Games.</strong> Game Dev Tycoon and all related names,
+    logos and trademarks are the property of Greenheart Games — please support the developers by buying the game.
+    Data was reconciled from the datamined v1.7.9 tables and the
+    <a href="https://gamedevtycoon.fandom.com/" target="_blank" rel="noopener noreferrer">Game Dev Tycoon Fandom wiki</a>
+    (text licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC&nbsp;BY-SA&nbsp;3.0</a>);
+    see <strong>CREDITS.md</strong> in the repo.</p>
+    <p class="tiny">Your settings &amp; game log are stored <strong>only in this browser</strong> — no cookies, no accounts,
+    your data never leaves your device. The live site counts visits anonymously. <a href="#" id="privacyLink">Privacy &amp; data</a> · All rights reserved · v8</p>
+  </footer>
+</div>
+
+<!-- privacy / storage notice — shown once on first visit, re-openable from the ☰ menu -->
+<div class="consent" id="consent" hidden>
+  <div class="ctext"><strong>Your data stays on this device.</strong> GDT Assistant saves your settings and game log in this
+    browser's local storage so you can continue where you left off — <strong>no cookies, no accounts,
+    nothing you enter is uploaded.</strong> The live site sends one anonymous visit count (none if you use a downloaded copy). <a href="#" id="consentPrivacy">What's stored?</a></div>
+  <div class="cbtns">
+    <button class="btn-primary" id="consentAccept">Save my progress</button>
+    <button class="btn-ghost" id="consentDecline">Use without saving</button>
+  </div>
+</div>
+
+<!-- generic overlay -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <header><h2 id="ovTitle"></h2><button class="closeb" id="ovClose" aria-label="Close">×</button></header>
+    <div class="body" id="ovBody"></div>
+    <div class="foot" id="ovFoot"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =========================================================================
+   GDT ASSISTANT — all data hard-coded from the datamined v1.7.9 guide + GDT wiki.
+   See RESEARCH.md for per-table sources & flagged uncertainties. Only network use: one anonymous visit count on the live site.
+   ========================================================================= */
+
+// Build flag: TESTING=true exposes the internal "review-flags" export (play copy only).
+// The PUBLIC github build sets this false → that menu item is never created.
+const TESTING = false;
+// Min logged samples before a concept's ranking / sliders are nudged by your own results.
+const MIN_SAMPLES = 3;
+
+const GENRES = ["Action","Adventure","RPG","Simulation","Strategy","Casual"];
+const GI = {Action:0,Adventure:1,RPG:2,Simulation:3,Strategy:4,Casual:5};
+const AREAS = ["Engine","Gameplay","Story","Dialogues","Level Design","AI","World Design","Graphics","Sound"];
+const STAGES = [[0,1,2],[3,4,5],[6,7,8]];
+const AUDIENCES = ["Young","Everyone","Mature"];
+// Sales-reach proxy only (no numeric market size is exposed by any source — see RESEARCH.md §7).
+const AUD_SIZE = {Young:0.75, Everyone:1.0, Mature:0.55};
+
+// ---- TOPICS: [name, Act,Adv,RPG,Sim,Str,Cas, Y,E,M, extended?] ----
+const TOPIC_DATA = [
+["Abstract",0.9,1.0,0.6,0.6,0.8,0.6,0.8,0.9,1.0,1],
+["Airplane",1.0,0.6,0.8,1.0,1.0,1.0,1.0,1.0,0.9,0],
+["Aliens",1.0,0.8,1.0,0.6,0.9,0.7,0.9,1.0,1.0,0],
+["Alternate History",1.0,0.8,1.0,0.8,0.9,0.6,0.6,1.0,1.0,0],
+["Assassin",1.0,0.7,1.0,0.8,0.6,0.6,0.6,0.8,1.0,1],
+["Business",0.6,0.8,0.8,1.0,1.0,0.6,0.9,1.0,0.7,0],
+["City",0.7,0.6,0.7,1.0,1.0,0.7,0.9,1.0,0.8,0],
+["Colonization",0.7,0.6,0.6,1.0,1.0,0.7,0.7,1.0,0.8,1],
+["Comedy",0.6,1.0,0.8,0.6,0.6,1.0,0.8,0.9,1.0,0],
+["Construction",0.7,0.6,0.6,1.0,0.9,0.8,0.8,1.0,0.9,1],
+["Cooking",0.9,0.7,0.8,1.0,0.7,1.0,0.8,1.0,0.6,1],
+["Crime",1.0,0.7,0.8,0.9,0.7,0.6,0.6,0.8,1.0,1],
+["Cyberpunk",1.0,0.8,1.0,0.8,0.7,0.6,0.7,0.9,1.0,0],
+["Dance",0.9,0.6,0.6,1.0,0.6,1.0,1.0,0.9,0.8,0],
+["Detective",0.6,1.0,1.0,0.8,0.6,0.9,0.9,1.0,0.8,0],
+["Disasters",0.9,0.8,0.7,1.0,1.0,0.7,0.7,0.9,1.0,1],
+["Dungeon",1.0,0.8,1.0,1.0,1.0,0.6,0.8,1.0,1.0,0],
+["Dystopian",0.8,0.9,0.8,1.0,0.9,0.6,0.6,0.8,1.0,1],
+["Evolution",0.7,0.6,0.6,1.0,1.0,0.6,0.8,1.0,0.7,0],
+["Expedition",0.7,0.9,0.6,0.9,1.0,0.6,0.8,1.0,0.9,1],
+["Extreme Sports",1.0,0.6,0.6,1.0,0.7,0.9,1.0,0.7,1.0,1],
+["Fantasy",1.0,1.0,1.0,0.8,1.0,0.6,1.0,1.0,1.0,0],
+["Farming",0.6,0.7,1.0,1.0,0.8,0.9,0.9,1.0,0.8,1],
+["Fashion",0.6,0.8,1.0,1.0,0.6,1.0,1.0,0.8,0.6,0],
+["Game Dev",0.6,0.7,0.6,1.0,0.6,0.8,0.9,1.0,0.7,0],
+["Government",0.6,0.6,0.6,1.0,1.0,0.7,0.6,1.0,0.8,0],
+["Hacking",0.7,0.8,0.7,1.0,1.0,0.6,0.7,0.9,1.0,0],
+["History",0.8,0.8,0.8,1.0,1.0,0.9,0.8,1.0,0.9,0],
+["Horror",1.0,1.0,0.8,0.6,0.7,0.8,0.6,0.9,1.0,0],
+["Hospital",0.6,0.6,0.8,1.0,0.8,0.7,0.7,1.0,0.8,0],
+["Hunting",1.0,0.9,0.9,1.0,0.7,0.9,0.9,1.0,0.9,0],
+["Law",0.6,1.0,0.9,0.9,0.9,0.6,0.8,1.0,0.7,0],
+["Life",0.6,1.0,0.9,1.0,0.6,0.8,1.0,1.0,0.8,0],
+["Mad Science",0.9,1.0,0.7,0.9,0.6,0.6,0.8,0.9,1.0,1],
+["Martial Arts",1.0,0.8,1.0,1.0,0.7,1.0,0.7,0.9,1.0,0],
+["Medieval",1.0,1.0,1.0,0.8,1.0,0.7,1.0,1.0,0.9,0],
+["Military",1.0,0.6,0.8,1.0,1.0,0.6,0.7,0.9,1.0,0],
+["Movies",0.8,0.8,0.6,1.0,0.6,1.0,0.9,1.0,0.9,0],
+["Music",1.0,0.9,0.6,1.0,0.6,1.0,1.0,0.9,0.8,0],
+["Mystery",0.6,1.0,1.0,0.8,0.6,0.8,0.8,0.9,1.0,0],
+["Mythology",1.0,0.8,0.9,0.9,0.8,0.7,0.7,1.0,1.0,1],
+["Ninja",1.0,0.8,0.8,0.6,0.8,0.9,1.0,0.9,0.9,0],
+["Pirate",0.8,1.0,0.9,0.9,0.7,0.8,1.0,1.0,0.8,0],
+["Post Apocalyptic",1.0,0.8,1.0,0.6,0.9,0.6,0.6,0.9,1.0,0],
+["Prison",1.0,1.0,0.8,1.0,0.8,0.6,0.7,0.9,1.0,0],
+["Racing",0.9,0.6,0.8,1.0,0.7,1.0,1.0,1.0,0.9,0],
+["Rythm",1.0,0.7,0.7,1.0,0.6,1.0,1.0,0.9,0.8,0],
+["Romance",0.6,1.0,0.8,0.9,0.6,0.9,0.8,1.0,1.0,0],
+["School",0.8,1.0,1.0,1.0,1.0,0.8,1.0,0.9,0.7,0],
+["Sci-Fi",1.0,1.0,1.0,1.0,1.0,0.8,0.8,1.0,1.0,0],
+["Space",1.0,0.8,0.6,1.0,1.0,0.7,0.8,1.0,1.0,0],
+["Sports",1.0,0.6,0.6,1.0,0.7,1.0,1.0,1.0,0.8,0],
+["Spy",1.0,1.0,1.0,0.8,0.7,0.8,0.8,0.9,1.0,0],
+["Superheroes",1.0,0.6,0.9,0.6,0.6,0.7,1.0,1.0,1.0,0],
+["Surgery",0.8,0.7,0.6,1.0,0.7,0.6,0.8,1.0,0.9,0],
+["Technology",0.6,0.7,0.6,1.0,0.9,0.6,0.8,1.0,0.9,1],
+["Thief",0.9,0.8,1.0,0.8,0.9,0.7,0.7,1.0,1.0,1],
+["Time Travel",0.9,1.0,1.0,0.7,0.6,0.7,0.9,1.0,0.8,0],
+["Transport",0.6,0.6,0.6,1.0,1.0,0.6,0.9,1.0,0.7,0],
+["UFO",1.0,0.8,0.6,0.8,1.0,0.8,0.8,1.0,0.9,0],
+["Vampire",1.0,0.8,1.0,0.6,0.6,0.7,0.7,1.0,1.0,0],
+["Virtual Pet",0.6,0.8,0.9,1.0,0.9,1.0,1.0,0.8,0.7,0],
+["Vocabulary",0.6,0.6,0.6,1.0,1.0,1.0,0.9,1.0,0.6,0],
+["Werewolf",1.0,0.8,1.0,0.6,0.6,0.7,0.7,0.9,1.0,0],
+["Wild West",0.9,0.7,1.0,0.6,0.6,0.7,1.0,0.9,1.0,0],
+["Zombies",1.0,0.7,0.9,0.7,0.9,1.0,0.9,0.8,1.0,0]
+];
+
+// ---- PLATFORMS: [name, real, Act,Adv,RPG,Sim,Str,Cas, Y,E,M, licK, rel, disc(null=never)] ----
+const PLATFORM_DATA = [
+["PC","IBM PC family",0.9,1.0,0.9,1.0,1.0,0.6,0.8,0.9,1.0,0,1,null],
+["Govodore 64","Commodore 64",0.9,1.0,0.9,0.9,1.0,0.7,0.8,0.9,1.0,20,1,5],
+["TES","NES",0.8,0.7,0.8,0.8,0.7,1.0,1.0,0.9,0.6,80,2,7],
+["Master V","Master System",0.9,0.7,0.8,0.8,0.7,1.0,0.9,1.0,0.7,80,3,12],
+["Gameling","Game Boy",0.8,0.7,0.9,0.9,0.6,1.0,1.0,0.9,0.6,50,4,16],
+["Vena Gear","Game Gear",0.9,0.8,0.8,0.9,0.6,1.0,0.9,1.0,0.8,50,4,9],
+["Vena Oasis","Mega Drive",1.0,0.8,0.8,0.9,0.6,0.7,0.8,1.0,0.9,100,5,12],
+["Super TES","SNES",0.9,0.9,0.9,1.0,0.7,0.9,1.0,0.9,0.7,50,6,11],
+["Playsystem","PlayStation",1.0,0.8,1.0,0.9,0.7,0.6,0.8,1.0,0.9,200,8,14],
+["TES 64","Nintendo 64",0.9,0.8,0.7,0.8,0.7,0.9,1.0,0.9,0.9,200,10,15],
+["DreamVast","Dreamcast",1.0,0.7,0.8,1.0,0.7,0.7,0.7,1.0,1.0,250,12,16],
+["Playsystem 2","PS2",1.0,0.8,1.0,0.9,0.7,0.9,0.9,1.0,0.8,350,13,21],
+["mBox","Xbox",1.0,0.8,0.9,0.9,0.7,0.7,0.8,1.0,0.9,350,13,19],
+["Game Sphere","GameCube",0.8,0.8,0.7,0.8,0.7,1.0,0.9,0.9,0.8,450,14,19],
+["GS","Nintendo DS",0.9,0.9,1.0,0.9,0.9,1.0,1.0,0.9,0.8,350,15,null],
+["PPS","PSP",1.0,0.7,1.0,0.8,0.8,0.8,0.8,0.9,1.0,350,16,null],
+["mBox 360","Xbox 360",1.0,0.9,1.0,0.9,0.7,0.9,0.8,0.9,1.0,500,19,27],
+["Nuu","Wii",0.8,0.6,0.7,1.0,0.7,1.0,1.0,1.0,0.7,500,20,24],
+["Playsystem 3","PS3",1.0,0.9,0.9,1.0,0.7,0.8,0.8,1.0,0.9,500,20,28],
+["grPhone","iPhone",0.8,0.8,0.7,0.9,0.7,1.0,0.9,1.0,0.6,500,21,null],
+["grPad","iPad",0.8,0.9,0.7,0.9,0.9,1.0,0.9,1.0,0.6,500,22,null],
+["mPad","MS Surface",0.7,0.9,0.8,0.9,0.7,0.9,0.7,0.9,0.8,500,24,null],
+["Wuu","Wii U",0.9,0.7,0.8,1.0,0.7,1.0,0.9,1.0,0.7,1000,24,30],
+["OYA","OUYA",0.9,0.7,0.8,0.9,0.8,1.0,0.8,1.0,0.9,10,26,null],
+["mBox One","Xbox One",1.0,0.8,0.9,0.9,0.7,0.9,0.7,1.0,0.8,1000,27,34],
+["Playsystem 4","PS4",1.0,0.8,1.0,0.9,0.7,0.9,0.8,1.0,0.9,1000,27,34],
+["Swap","Switch",0.9,0.8,1.0,0.8,0.7,1.0,0.9,1.0,0.8,1250,29,null],
+["mBox Next","Xbox Series X",0.9,0.9,0.9,0.8,0.7,1.0,0.9,1.0,0.8,1500,32,null],
+["Playsystem 5","PS5",1.0,0.7,0.9,1.0,0.7,0.9,0.8,1.0,0.9,1500,32,null]
+];
+
+// ---- PLATFORM release/discontinue per game length, month-precise (wiki) ----
+// {rel:[ [y,m]×30/35/42 ], disc:[ [y,m]|null ×30/35/42 ]}. Index via LEN_IDX. null disc = never.
+const LEN_IDX = {30:0, 35:1, 42:2};
+const PLATFORM_DATES = {
+"PC":{rel:[[1,1],[1,1],[1,1]],disc:[null,null,null]},
+"Govodore 64":{rel:[[1,1],[1,1],[1,1]],disc:[[4,6],[5,4],[5,10]]},
+"TES":{rel:[[2,1],[2,3],[2,6]],disc:[[6,6],[7,8],[8,8]]},
+"Master V":{rel:[[3,2],[3,6],[3,12]],disc:[[11,3],[12,12],[15,4]]},
+"Gameling":{rel:[[3,9],[4,2],[4,10]],disc:[[14,4],[16,6],[19,8]]},
+"Vena Gear":{rel:[[4,2],[4,9],[5,5]],disc:[[8,4],[9,6],[11,2]]},
+"Vena Oasis":{rel:[[5,2],[5,11],[6,10]],disc:[[10,11],[12,6],[14,10]]},
+"Super TES":{rel:[[5,12],[6,10],[7,12]],disc:[[9,8],[11,2],[13,1]]},
+"Playsystem":{rel:[[7,7],[8,8],[10,2]],disc:[[12,11],[14,11],[17,12]]},
+"TES 64":{rel:[[9,2],[10,6],[12,4]],disc:[[13,5],[15,6],[18,5]]},
+"DreamVast":{rel:[[10,8],[12,3],[14,6]],disc:[[14,1],[16,4],[19,4]]},
+"Playsystem 2":{rel:[[11,5],[13,2],[15,7]],disc:[[18,6],[21,5],[25,6]]},
+"mBox":{rel:[[11,12],[13,10],[16,5]],disc:[[17,2],[19,10],[23,8]]},
+"Game Sphere":{rel:[[12,12],[14,11],[17,9]],disc:[[17,2],[19,10],[23,8]]},
+"GS":{rel:[[13,8],[15,10],[18,9]],disc:[null,null,null]},
+"PPS":{rel:[[14,3],[16,6],[19,7]],disc:[null,null,null]},
+"mBox 360":{rel:[[16,8],[19,4],[22,11]],disc:[[24,2],[27,12],[33,5]]},
+"Nuu":{rel:[[17,4],[20,1],[23,11]],disc:[[21,6],[24,11],[29,8]]},
+"Playsystem 3":{rel:[[17,12],[20,10],[24,10]],disc:[[24,9],[28,9],[34,3]]},
+"grPhone":{rel:[[18,9],[21,8],[25,9]],disc:[null,null,null]},
+"grPad":{rel:[[19,7],[22,9],[26,12]],disc:[null,null,null]},
+"mPad":{rel:[[20,10],[24,2],[28,9]],disc:[null,null,null]},
+"Wuu":{rel:[[20,12],[24,4],[28,12]],disc:[null,[30,8],null]},
+"OYA":{rel:[[22,10],[26,6],[31,7]],disc:[null,null,null]},
+"mBox One":{rel:[[23,8],[27,6],[32,9]],disc:[[29,12],[34,10],[41,7]]},
+"Playsystem 4":{rel:[[23,10],[27,8],[32,12]],disc:[[29,4],[34,1],[40,8]]},
+"Swap":{rel:[[25,3],[29,3],[34,11]],disc:[null,null,null]},
+"mBox Next":{rel:[[27,8],[32,2],[38,4]],disc:[null,null,null]},
+"Playsystem 5":{rel:[[27,10],[32,4],[38,7]],disc:[null,null,null]} // v8: from codeNw.js published:"27/10/4" × LENMOD (same rule reproduces every other row); wiki only had the 35y value
+};
+
+// build topic / platform objects
+const TOPICS = TOPIC_DATA.map(r=>({name:r[0], g:r.slice(1,7), a:r.slice(7,10), ext:!!r[10]}));
+const PLATFORMS = PLATFORM_DATA.map(r=>{
+  const d = PLATFORM_DATES[r[0]];
+  return {name:r[0], real:r[1], g:r.slice(2,8), a:r.slice(8,11), lic:r[11], rel:d.rel, disc:d.disc};
+});
+
+// ---- single-genre slider priorities [9] ----
+const PRI_SINGLE = {
+  Action:    [1.0,0.9,0.7,0.6,0.9,1.0,0.8,1.0,0.9],
+  Adventure: [0.7,0.8,1.0,1.0,0.8,0.7,1.0,0.9,0.8],
+  RPG:       [0.7,0.9,1.0,1.0,0.9,0.8,1.0,0.9,0.8],
+  Simulation:[0.9,1.0,0.8,0.7,0.9,1.0,0.8,1.0,0.9],
+  Strategy:  [0.9,1.0,0.8,0.7,1.0,0.9,1.0,0.8,0.9],
+  Casual:    [0.6,1.0,0.7,0.7,1.0,0.6,0.7,1.0,0.9]
+};
+// (PRI_MULTI removed in v7 — multi-genre design weights are now derived via effWeights() as the
+//  raw (2·primary + secondary)/3 blend, matching the game; the old hardcoded table was inaccurate. RESEARCH §7.)
+// ---- per-genre Design/Technology target (T/D ratio = Tech:Design) ----
+const TD = {Action:1.8, Adventure:0.4, RPG:0.6, Simulation:1.6, Strategy:1.4, Casual:0.5};
+// ---- per-area Design% (rest is Tech%) ----
+const AREA_DESIGN = [20,80,80,90,40,20,60,50,60];
+
+/* ===== v7 logic (market model + precise sliders + overrides). Data/math from codeNw.js v1.7.9; see RESEARCH.md. Reuses existing GENRES/GI/PRI_SINGLE/TD/AREA_DESIGN/STAGES. ===== */
+const LENMOD={30:1.0,35:1.16667,42:1.4};
+const SDF=AREA_DESIGN.map(x=>x/100);              // design fraction per field
+const MISSION_OVERRIDES={"Sports":[[0.9,1,null,0.7,0.8,1,0.6,null,null],[null,0.9,null,null,0.9,null,null,null,null],[null,1,0.9,null,null,null,0.7,1,0.9],[null,null,null,0.8,null,null,0.7,null,null],[0.8,1,0.9,null,null,null,0.8,1,0.9],[null,null,null,null,null,null,null,null,null]],"Racing":[[null,null,null,null,null,null,0.7,0.9,1],[null,0.9,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,0.7,0.9,1],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null]],"Mystery":[[0.9,0.8,1,0.9,1,0.8,1,0.8,0.9],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[0.8,1,0.9,0.8,1,0.9,1,0.8,0.9],[0.8,1,0.9,0.8,1,0.9,1,0.8,0.9],[null,null,null,null,null,null,null,null,null]],"Horror":[[null,null,null,0.7,1,0.9,0.9,0.8,1],[null,null,null,null,null,null,0.7,0.9,1],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null]],"Detective":[[0.9,0.8,1,0.9,1,0.8,1,0.8,0.9],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[0.8,1,0.9,0.8,1,0.9,1,0.8,0.9],[0.8,1,0.9,0.8,1,0.9,1,0.8,0.9],[null,null,null,null,null,null,null,null,null]],"Cyberpunk":[[1,0.8,0.9,0.8,1,0.9,1,0.9,0.8],[null,null,null,null,null,null,1,0.9,0.8],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,1,null,null],[null,null,null,null,null,null,1,null,null],[null,null,null,null,null,null,1,null,null]],"Law":[[null,null,null,1,0.8,0.9,null,null,null],[null,null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null,null],[0.8,0.9,1,1,0.8,0.9,1,0.9,0.8],[null,null,null,null,null,null,null,null,null],[null,null,null,1,0.9,null,null,null,null]],"Music":[[null,null,null,null,null,null,0.8,0.9,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.8,0.9,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.7,0.9,1]],"Rythm":[[null,null,null,null,null,null,0.8,0.9,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.8,0.9,1],[null,null,null,null,null,null,0.9,0.8,1],[null,null,null,null,null,null,0.7,0.9,1]]};
+const MARKET_POINTS={"PC":{pub:"1/1/1",ret:"260/12/4",start:0.22,units:5.7,mkp:[["2/1/1",0.24],["4/1/1",0.41],["4/10/2",0.48],["11/5/2",1.1],["16/12/1",2.1],["20/7/1",2.4],["22/9/2",2.6],["23/4/1",4],["26/12/4",5.7]]},
+"Govodore 64":{pub:"1/1/1",ret:"4/6/2",start:0.28,units:0.388,mkp:[["2/5/1",0.36],["3/1/1",0.38],["4/1/1",0.386]]},
+"TES":{pub:"2/1/2",ret:"6/6/2",start:0.356,units:0.42,mkp:[["2/5/1",0.41],["3/1/1",0.444],["4/1/1",0.46]]},
+"Master V":{pub:"3/2/3",ret:"11/3/4",start:0.43,units:0.7,mkp:[["4/1/1",0.456],["6/6/2",0.466]]},
+"Gameling":{pub:"3/9/2",ret:"14/4/2",start:0.8,units:1,mkp:[]},
+"Vena Gear":{pub:"4/2/4",ret:"8/4/1",start:0.6,units:0.84,mkp:[]},
+"Vena Oasis":{pub:"5/2/4",ret:"10/11/1",start:0.62,units:0.65,mkp:[]},
+"Super TES":{pub:"5/12/4",ret:"9/8/1",start:0.65,units:0.8,mkp:[["6/6/1",0.7],["8/10/1",0.73]]},
+"Playsystem":{pub:"7/7/1",ret:"12/11/3",start:0.85,units:1.22,mkp:[]},
+"TES 64":{pub:"9/2/1",ret:"13/5/4",start:0.7,units:1.25,mkp:[["9/7/1",0.85]]},
+"DreamVast":{pub:"10/8/3",ret:"14/1/4",start:1.1,units:0.9,mkp:[["11/4/2",1.2]]},
+"Playsystem 2":{pub:"11/5/2",ret:"18/6/3",start:1.3,units:2.4,mkp:[]},
+"mBox":{pub:"11/12/4",ret:"17/2/3",start:1.35,units:2.1,mkp:[["12/10/1",1.6],["14/4/1",1.7]]},
+"Game Sphere":{pub:"12/12/1",ret:"17/2/3",start:1,units:1.7,mkp:[]},
+"GS":{pub:"13/8/4",ret:"260/12/4",start:1.5,units:3.8,mkp:[["26/12/4",3.8]]},
+"PPS":{pub:"14/3/4",ret:"260/12/4",start:1.44,units:3.1,mkp:[["26/12/4",3.1]]},
+"mBox 360":{pub:"16/8/4",ret:"24/2/3",start:2.4,units:3.7,mkp:[]},
+"Nuu":{pub:"17/4/4",ret:"21/6/3",start:2,units:2.8,mkp:[]},
+"Playsystem 3":{pub:"17/12/4",ret:"24/9/3",start:2.5,units:3.7,mkp:[]},
+"grPhone":{pub:"18/9/1",ret:"260/12/4",start:2.3,units:3.7,mkp:[["26/12/4",3.7]]},
+"grPad":{pub:"19/7/4",ret:"260/12/4",start:2.3,units:3.8,mkp:[["26/12/4",3.8]]},
+"mPad":{pub:"20/10/4",ret:"260/12/4",start:2.2,units:3.4,mkp:[["26/12/4",3.4]]},
+"Wuu":{pub:"20/12/4",ret:"26/5/2",start:3,units:5,mkp:[["29/12/4",5]]},
+"OYA":{pub:"22/10/4",ret:"260/12/4",start:2.5,units:4,mkp:[["29/12/4",4]]},
+"mBox One":{pub:"23/8/4",ret:"29/12/4",start:3.6,units:5.5,mkp:[["23/9/1",4.1],["28/12/4",5.5]]},
+"Playsystem 4":{pub:"23/10/4",ret:"29/4/4",start:3.7,units:6,mkp:[["28/4/4",6]]},
+"Swap":{pub:"25/3/1",ret:"260/12/4",start:4.5,units:6,mkp:[["29/12/4",6]]},
+"mBox Next":{pub:"27/8/4",ret:"260/12/4",start:5.6,units:6.6,mkp:[["28/9/1",5.8],["29/12/4",6.6]]},
+"Playsystem 5":{pub:"27/10/4",ret:"260/12/4",start:5.2,units:6.4,mkp:[["29/12/4",6.4]]}};
+
+function weekBase(s){const p=s.split('/');return 48*(p[0]-1)+4*(p[1]-1)+(p[2]-1);}
+// raw market size (game units; relative magnitude is what matters). 0 before release / after retire.
+function marketSizeRaw(name,year,month,length){
+  const P=MARKET_POINTS[name]; if(!P) return 0;
+  const lm=LENMOD[length]||1, c=(year-1)*48+(month-1)*4;
+  const pub=Math.round(weekBase(P.pub)*lm), ret=Math.round(weekBase(P.ret)*lm);
+  if(c<pub||c>ret) return 0;
+  let prevW=pub, prevA=P.start, nextW=ret, nextA=P.units, i, kw;
+  for(i=0;i<P.mkp.length;i++){ kw=Math.round(weekBase(P.mkp[i][0])*lm); if(c>=kw){prevW=kw;prevA=P.mkp[i][1];} }
+  for(i=P.mkp.length-1;i>=0;i--){ kw=Math.round(weekBase(P.mkp[i][0])*lm); if(c<=kw){nextW=kw;nextA=P.mkp[i][1];} }
+  const n=nextW-prevW; if(n<=0) return prevA; const mm=Math.min(c-prevW,n);
+  return (mm/n)*(nextA-prevA)+prevA;
+}
+// share 0..1 of total on-market size at the in-game date (over the player's owned platforms list `names`)
+function marketShare(name,year,month,length,names){
+  const s=marketSizeRaw(name,year,month,length); if(s<=0) return 0;
+  let tot=0; for(const n of (names||Object.keys(MARKET_POINTS))){ const v=marketSizeRaw(n,year,month,length); if(v>0) tot+=v; }
+  return tot>0? s/tot : 0;
+}
+// effective 9 design-focus weights for 1-2 genres + optional topic missionOverrides (raw blend (2*prim+sec)/3)
+function effWeights(genres, topicName){
+  const g0=genres[0], g1=genres[1], i0=GI[g0], i1=g1?GI[g1]:-1, ov=topicName&&MISSION_OVERRIDES[topicName], w=[];
+  for(let i=0;i<9;i++){
+    let a=PRI_SINGLE[g0][i]; if(ov&&ov[i0]&&ov[i0][i]) a=ov[i0][i];
+    if(g1){ let b=PRI_SINGLE[g1][i]; if(ov&&ov[i1]&&ov[i1][i]) b=ov[i1][i]; w[i]=(2*a+b)/3; }
+    else w[i]=a;
+  }
+  return w;
+}
+function goldenFor(genres){ return genres[1]? (2*TD[genres[0]]+TD[genres[1]])/3 : TD[genres[0]]; }
+// --- slider optimizer: maximizes the game's review modifier (Reviews.rateGame) over slider shares ---
+function _sScore(x,w,gr){let p=0,q=0,i;for(i=0;i<9;i++){p+=x[i]*SDF[i];q+=x[i]*(1-SDF[i]);}
+  let s=0;const v=Math.abs(p*gr-q)/Math.max(p,q)*100; if(v<=25)s+=0.1;else if(v>50)s-=0.1;
+  let imp=0,uo=0,ng=0;for(i=0;i<9;i++){if(w[i]>=0.9&&x[i]>=0.4)imp++;if(w[i]<0.8&&x[i]>=0.4)uo++;if(w[i]>=0.9&&x[i]<=0.2)ng++;}
+  s+=imp>=2?0.2:imp===1?0.1:-0.15; if(uo===2)s-=0.2;else if(uo===1)s-=0.1; s-=0.15*ng; return {s,p,q,v};}
+function _qual(x,w,gr,sc){ // tie-break among EQUAL review-score solutions toward the robust/intuitive split:
+  // reward EACH important field (w>=0.9) for reaching the 40% focus threshold (+ small margin bonus above it),
+  // penalize time spent on unimportant fields. Balance is already a hard v<=25 gate inside _sScore, so it must
+  // NOT be re-chased here — the old version minimised balance-v inside the same Math.min as the field-safety
+  // margins, which starved secondary important fields down to ~30% (just above the 20% neglect cliff): the
+  // reported "+++ at 30% next to ++ at 70%" inversion. This keeps s identical but lifts important fields high.
+  let reach=0,over=0,unimp=0,i;
+  for(i=0;i<9;i++){if(w[i]>=0.9){reach+=Math.min(x[i],0.4);over+=Math.max(0,x[i]-0.4);}else if(w[i]<0.8)unimp+=x[i];}
+  return reach*10+over*0.5-unimp*0.3;}
+function _cands(step){const c=[],n=Math.round(1/step);for(let a=0;a<=n;a++)for(let b=0;b<=n-a;b++)c.push([a*step,b*step,(n-a-b)*step]);return c;}
+const _C1=_cands(0.1), _C05=_cands(0.05), _optCache={};
+function sliderOpt(w,gr){
+  const key=w.map(x=>Math.round(x*100)).join(',')+'|'+gr.toFixed(2); if(_optCache[key])return _optCache[key];
+  const x=[0,0,0,0,0,0,0,0,0]; let Bx=null,Bs=-9,Bq=-9,sc;
+  for(let i0=0;i0<_C1.length;i0++){const c0=_C1[i0];x[0]=c0[0];x[1]=c0[1];x[2]=c0[2];
+   for(let i1=0;i1<_C1.length;i1++){const c1=_C1[i1];x[3]=c1[0];x[4]=c1[1];x[5]=c1[2];
+    for(let i2=0;i2<_C1.length;i2++){const c2=_C1[i2];x[6]=c2[0];x[7]=c2[1];x[8]=c2[2];
+      sc=_sScore(x,w,gr); if(sc.s>Bs+1e-9||(Math.abs(sc.s-Bs)<1e-9&&_qual(x,w,gr,sc)>Bq+1e-9)){Bs=sc.s;Bq=_qual(x,w,gr,sc);Bx=x.slice();}
+    }}}
+  let cur=Bx.slice();
+  for(let pass=0;pass<3;pass++)for(let st=0;st<3;st++){const idx=STAGES[st];let loc=null;
+    for(let k=0;k<_C05.length;k++){const cc=_C05[k],y=cur.slice();y[idx[0]]=cc[0];y[idx[1]]=cc[1];y[idx[2]]=cc[2];
+      const s2=_sScore(y,w,gr),q2=_qual(y,w,gr,s2);
+      if(!loc||s2.s>loc.s+1e-9||(Math.abs(s2.s-loc.s)<1e-9&&q2>loc.q+1e-9))loc={s:s2.s,q:q2,y:y.slice(),sc:s2};}
+    cur=loc.y;}
+  const r={x:cur,s:Bs,sc:_sScore(cur,w,gr)}; _optCache[key]=r; return r;
+}
+/* ===== end v7 logic ===== */
+
+/* ---------------- state + persistence ---------------- */
+const LS_KEY = "gdtHelper.gh.v1";   // public build — its own key, never touches a local play-save
+const LS_KEY_V1 = "gdtHelper.v1";    // real play-copy key, READ-ONLY here (one-time seed on first v2 boot)
+// whitelists for validating saved/imported data (defence against tampered files)
+const GENRE_SET=new Set(GENRES), TOPIC_SET=new Set(TOPICS.map(t=>t.name)),
+      PLAT_SET=new Set(PLATFORMS.map(p=>p.name)), AUD_SET=new Set(AUDIENCES);
+// HTML-escape any user-derived string before it ever touches innerHTML (OWASP 5-char set)
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c])); }
+
+const DEFAULT_STATE = {
+  topics: {},        // blank first-run — user enables the topics they've actually unlocked
+  offered: {},       // locked topics the game is currently OFFERING to research (drives "Research next")
+  platforms: {},     // blank first-run — user enables the platforms they own
+  theme:"dark",                      // "dark" (Midnight) or "light"
+  targetedAudiences:false,           // off = only "Everyone" (game start)
+  multiGenre:false, primary:"Action", secondary:"RPG",
+  gameLength:35, gameYear:"", gameMonth:"",
+  games:[],                          // log of games already made (newest first)
+  reviewFlags:[],                    // internal: logged outcomes that contradict the model (TESTING export)
+  consent:null                       // null = undecided, "accepted" = persist, "declined" = session only
+};
+const clone = o=>JSON.parse(JSON.stringify(o));
+
+// validate one logged-game record against the dataset (drops anything unrecognised → no injection)
+function validateGame(g){
+  if(!g||typeof g!=="object") return null;
+  let genres = Array.isArray(g.genres) ? g.genres.filter(x=>GENRE_SET.has(x)).slice(0,2) : [];
+  if(genres.length===2 && genres[0]===genres[1]) genres=[genres[0]];
+  if(!genres.length || !TOPIC_SET.has(g.topic)) return null;
+  const out={ genres, topic:g.topic };
+  if(PLAT_SET.has(g.platform)) out.platform=g.platform;
+  if(AUD_SET.has(g.audience)) out.audience=g.audience;
+  const sc=Number(g.score); if(Number.isFinite(sc)&&sc>=1&&sc<=10) out.score=Math.round(sc*10)/10;
+  // optional: the player's actual 9 slider %s (0-100 ints) — used for slider learning
+  if(Array.isArray(g.sliders) && g.sliders.length===9){
+    const sl=g.sliders.map(n=>Math.round(Number(n)));
+    if(sl.every(n=>Number.isFinite(n)&&n>=0&&n<=100)) out.sliders=sl;
+  }
+  // optional in-game date {y,m} (ints) when the game was released
+  if(g.date && typeof g.date==="object"){
+    const y=parseInt(g.date.y,10), m=parseInt(g.date.m,10);
+    if(Number.isFinite(y)&&y>=1&&y<=99){ const d={y}; if(Number.isFinite(m)&&m>=1&&m<=12) d.m=m; out.date=d; }
+  }
+  return out;
+}
+// validate one reviewFlag record (internal diagnostics; whitelist + escape on display)
+function validateFlag(f){
+  if(!f||typeof f!=="object") return null;
+  const out={};
+  if(Array.isArray(f.genres)) out.genres=f.genres.filter(x=>GENRE_SET.has(x)).slice(0,2);
+  if(TOPIC_SET.has(f.topic)) out.topic=f.topic;
+  if(PLAT_SET.has(f.platform)) out.platform=f.platform;
+  if(AUD_SET.has(f.audience)) out.audience=f.audience;
+  const sc=Number(f.score); if(Number.isFinite(sc)) out.score=Math.round(sc*10)/10;
+  const ex=Number(f.expected); if(Number.isFinite(ex)) out.expected=Math.round(ex*1000)/1000;
+  if(typeof f.note==="string") out.note=f.note.slice(0,200);
+  return out;
+}
+// build a clean state from an untrusted parsed object (whitelist keys/values; no prototype pollution)
+function mergeState(s){
+  const merged=clone(DEFAULT_STATE);
+  if(s.topics && typeof s.topics==="object") for(const k of Object.keys(s.topics)) if(TOPIC_SET.has(k) && s.topics[k]===true) merged.topics[k]=true;
+  if(s.offered && typeof s.offered==="object") for(const k of Object.keys(s.offered)) if(TOPIC_SET.has(k) && s.offered[k]===true && !merged.topics[k]) merged.offered[k]=true;
+  if(s.platforms && typeof s.platforms==="object") for(const k of Object.keys(s.platforms)) if(PLAT_SET.has(k) && s.platforms[k]===true) merged.platforms[k]=true;
+  if(s.theme==="light"||s.theme==="dark") merged.theme=s.theme;
+  merged.targetedAudiences=!!s.targetedAudiences;
+  merged.multiGenre=!!s.multiGenre;
+  if(GENRE_SET.has(s.primary)) merged.primary=s.primary;
+  if(GENRE_SET.has(s.secondary)) merged.secondary=s.secondary;
+  if([30,35,42].includes(+s.gameLength)) merged.gameLength=+s.gameLength;
+  if(s.gameYear!=null) merged.gameYear=String(s.gameYear).replace(/[^0-9]/g,"").slice(0,3);
+  if(s.gameMonth!=null) merged.gameMonth=String(s.gameMonth).replace(/[^0-9]/g,"").slice(0,2);
+  if(Array.isArray(s.games)) merged.games=s.games.slice(0,200).map(validateGame).filter(Boolean);
+  if(Array.isArray(s.reviewFlags)) merged.reviewFlags=s.reviewFlags.slice(0,500).map(validateFlag).filter(Boolean);
+  if(s.consent==="accepted"||s.consent==="declined") merged.consent=s.consent;
+  return merged;
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw){
+      // one-time seed: v2 key is empty → read (never write) the real v1 save, if any, through the
+      // same validating mergeState() path, so Gijs sees his real data on first v2 visit, risk-free.
+      try{
+        const v1raw = localStorage.getItem(LS_KEY_V1);
+        if(v1raw){
+          const v1s = JSON.parse(v1raw);
+          if(v1s && typeof v1s==="object" && !Array.isArray(v1s)) return mergeState(v1s);
+        }
+      }catch(e){ /* fall through to defaults */ }
+      return clone(DEFAULT_STATE);
+    }
+    const s = JSON.parse(raw);
+    if(!s || typeof s!=="object" || Array.isArray(s)) return clone(DEFAULT_STATE);
+    return mergeState(s);
+  }catch(e){ return clone(DEFAULT_STATE); }
+}
+let state = loadState();
+function applyTheme(){ document.documentElement.classList.toggle("light", state.theme==="light"); }
+applyTheme();   // apply before first paint to avoid a theme flash
+// only persist once the user has accepted (privacy notice). Declined/undecided → in-memory only.
+function saveState(){ if(state.consent!=="accepted") return; try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ---------------- helpers ---------------- */
+const $ = sel=>document.querySelector(sel);
+const el = (tag,cls,html)=>{const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;};
+const r2 = v=>Math.round(v*100)/100;
+
+function tier(v){ if(v>=0.97)return"great"; if(v>=0.87)return"good"; if(v>=0.77)return"okay"; if(v>=0.67)return"bad"; return"terr"; }
+function tierWord(v){ return {great:"Great",good:"Good",okay:"Okay",bad:"Bad",terr:"Terrible"}[tier(v)]; }
+function tierColorVar(t){ return `var(--${t==='terr'?'terr':t})`; }
+
+/* ---- v11 text-minimization helpers: small badges/chips/toggles carrying the full text in title= ---- */
+// audience rating badge (Y/E/M) — reused everywhere audience used to be spelled out as a word
+function audIcon(aud){
+  const M={Young:{l:"Y",t:"great"},Everyone:{l:"E",t:"okay"},Mature:{l:"M",t:"terr"}};
+  const m=M[aud]||M.Everyone;
+  return `<span class="audg audg-${m.t}" role="img" aria-label="${aud}" title="${aud}">${m.l}</span>`;
+}
+// compact pill for a fact that used to be a full sentence — text stays hover-accessible in title=.
+// a11y audit: title= alone never reaches touch/keyboard/screen-reader users, so the aria-label
+// mirrors it — the full sentence (era status, market share, etc.) is then in the accessibility
+// tree even without a hover, without changing anything visual.
+function statChip(text, title, cls){ return `<span class="schip${cls?" "+cls:""}" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${text}</span>`; }
+// platform name as one inline unit for card headers. Tooltip carries the platform's real-world
+// name plus — round-2 feedback: no more visible dot for the era/prime status, that sentence just
+// folds into this same title= instead — the era note (prime/EOL/discontinued). opts.era default
+// true; explorer passes false since it already shows the full era sentence as its own line below.
+// a11y audit: aria-label mirrors title= for the same reason as statChip() above.
+function platformInline(pkg, opts){
+  opts=opts||{}; const p=pkg.platform;
+  const era = opts.era!==false ? eraNote(p).replace(/<[^>]+>/g,"") : "";
+  const title = era ? `${p.real} — ${era}` : p.real;
+  return `<span class="plat" title="${escapeHtml(title)}" aria-label="${escapeHtml(title)}">${p.name}</span>`;
+}
+// market-share stat pill for a scored package — split out from platformInline so callers can place
+// it relative to other header badges (round-2: mkt pill now sits right of the audience icon).
+function marketChip(pkg){
+  if(!pkg.dated) return "";
+  const d=currentDate();
+  return statChip(`${Math.round(pkg.share*100)}% mkt`, `Biggest market at Y${d.year}: ${Math.round(pkg.share*100)}% share (most sales).`);
+}
+// round-4: builds a .spec header line from explicit flex children (see .spec/.specsep CSS comment
+// for why bare " · " text nodes broke under flex). Each segment becomes its own <span class="specseg">;
+// segments are joined by a dedicated <span class="specsep">·</span> — no whitespace text nodes at all.
+function specLine(...segs){
+  return segs.filter(s=>s!=null && s!=="")
+    .map(s=>`<span class="specseg">${s}</span>`)
+    .join('<span class="specsep">·</span>');
+}
+// native <details>/<summary> "?" toggle — the one mechanism used everywhere a long explainer used to
+// sit visible-by-default. Content is preserved in full, just hidden until opened.
+function infoToggle(html, label){
+  const l=label||"More info";
+  return `<details class="itog"><summary title="${escapeHtml(l)}" aria-label="${escapeHtml(l)}">?</summary><div class="ibody note">${html}</div></details>`;
+}
+
+function enabledTopics(){ return TOPICS.filter(t=>state.topics[t.name]); }
+function enabledPlatforms(){ return PLATFORMS.filter(p=>state.platforms[p.name]); }
+// Targeted Audiences research: off → only "Everyone"; on → all three.
+function enabledAudiences(){ return state.targetedAudiences ? AUDIENCES.slice() : ["Everyone"]; }
+
+// blended weight for a genre-array (1 or 2 genres): primary 2/3, secondary 1/3
+function blend(arr, genres){
+  if(genres.length===1) return arr[GI[genres[0]]];
+  return r2(2/3*arr[GI[genres[0]]] + 1/3*arr[GI[genres[1]]]);
+}
+
+/* ---------------- scoring engine ---------------- */
+function scorePackage(audience, platform, genres, topic){
+  const tg = blend(topic.g, genres);
+  const pg = blend(platform.g, genres);
+  const ai = AUDIENCES.indexOf(audience);
+  const ta = topic.a[ai];
+  const pa = platform.a[ai];
+  const isGreat = genres.every(g=>topic.g[GI[g]]===1.0);
+  // weighted fit (0-1): topic↔genre dominant. Multiplicative-ish via weighted mean.
+  const base = tg*0.40 + pg*0.18 + ta*0.27 + pa*0.15;
+  const score = base + (isGreat?0.02:0);          // precise value for ranking
+  const fit = Math.min(100, Math.round(score*100)); // display value, capped at 100
+  // sales-reach proxy (tie-break only) — labelled an estimate in the UI
+  const reach = AUD_SIZE[audience]*pa*pg;
+  // "clearly bad" combo → never recommend
+  const bad = tg<0.75 || pg<0.65 || ta<0.65 || pa<0.65;
+  return {audience,platform,genres,topic, tg,pg,ta,pa, isGreat, fit, score, reach, bad};
+}
+
+// candidate genre sets given the multi-genre toggle
+function genreCandidates(){
+  const singles = GENRES.map(g=>[g]);
+  if(!state.multiGenre) return singles;
+  const pairs = [];
+  for(const a of GENRES) for(const b of GENRES) if(a!==b) pairs.push([a,b]);
+  return singles.concat(pairs);
+}
+
+// current in-game date as months/markets — {set,year,month}. month defaults to 1 when blank.
+function currentDate(){
+  const y=parseInt(state.gameYear,10);
+  if(!y||isNaN(y)) return {set:false, year:0, month:1};
+  const m=Math.min(12,Math.max(1,parseInt(state.gameMonth,10)||1));
+  return {set:true, year:y, month:m};
+}
+// names of the platforms the player has enabled (their "owned" universe for market-share)
+function ownedPlatformNames(){ return enabledPlatforms().map(p=>p.name); }
+
+// Real market-share model (RESEARCH §6). Returns {on, share}:
+//   on:false → platform not released yet OR already retired at the in-game date → exclude entirely.
+//   share    → 0..1 share of the on-market install base over the OWNED platforms at that date.
+// No date set → {on:true, share:0} (caller falls back to the AUD_SIZE reach proxy).
+function platformMarket(p){
+  const d=currentDate();
+  if(!d.set) return {on:true, share:0, dated:false};
+  const raw=marketSizeRaw(p.name, d.year, d.month, state.gameLength);
+  if(raw<=0) return {on:false, share:0, dated:true};   // not on the market at this date
+  return {on:true, share:marketShare(p.name, d.year, d.month, state.gameLength, ownedPlatformNames()), dated:true};
+}
+
+// ---- games-log learning helpers ----
+// concept key for matching logged games (order-insensitive on the two genres)
+function conceptKey(genres, topicName){ return genres.slice().sort().join("+")+"|"+topicName; }
+// scores logged for the EXACT genres+topic concept
+function loggedScoresFor(genres, topicName){
+  const k=conceptKey(genres, topicName);
+  return (state.games||[]).filter(g=>typeof g.score==="number" && conceptKey(g.genres,g.topic)===k).map(g=>g.score);
+}
+function median(a){ if(!a.length) return null; const s=a.slice().sort((x,y)=>x-y), n=s.length;
+  return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2; }
+// sample-gated tuning of a concept's rank from your own logged reviews. Bounded ±0.1; never overwrites baseline.
+// delta = clamp(median/10 − pkg.score, −0.1, +0.1).  {delta, n, median} (delta 0 when < MIN_SAMPLES).
+function tuneInfo(pkg){
+  const scores=loggedScoresFor(pkg.genres, pkg.topic.name), n=scores.length;
+  if(n<MIN_SAMPLES) return {delta:0, n, median:null};
+  const md=median(scores);
+  const delta=Math.max(-0.1, Math.min(0.1, md/10 - pkg.score));
+  return {delta, n, median:md};
+}
+// Best-scoring logged slider set for a concept (genres+topic), falling back to genres-only.
+// Requires >= MIN_SAMPLES logged games with sliders & score>=9 in the matched scope. {sliders, score, scope} | null.
+function bestLoggedSliders(genres, topicName){
+  const games=(state.games||[]).filter(g=>Array.isArray(g.sliders)&&typeof g.score==="number");
+  const pick=arr=>{ const hi=arr.filter(g=>g.score>=9); if(hi.length<MIN_SAMPLES) return null;
+    return hi.reduce((b,g)=>(!b||g.score>b.score)?g:b, null); };
+  const kGT=conceptKey(genres, topicName);
+  const exact=pick(games.filter(g=>conceptKey(g.genres,g.topic)===kGT));
+  if(exact) return {sliders:exact.sliders, score:exact.score, scope:"genres + topic"};
+  const gk=genres.slice().sort().join("+");
+  const byGenre=pick(games.filter(g=>g.genres.slice().sort().join("+")===gk));
+  if(byGenre) return {sliders:byGenre.sliders, score:byGenre.score, scope:"these genres"};
+  return null;
+}
+
+// Recency demotion (replaces the old fixed repeatInfo). Penalty scales with how RECENTLY and how OFTEN
+// the concept's genre+topic (and topic / genre individually) recurs in the last K released games.
+//   exact same genres+topic as the IMMEDIATELY previous game = −0.4 (matches GDT's repeat penalty).
+//   broader/older reuse adds smaller decaying contributions (topic 0.12·, genre 0.08·, decaying by position).
+// DEMOTE only (never hard-exclude). Returns enough to explain it in the card.
+function recencyDemotion(genres, topicName){
+  const games=state.games||[]; const K=8;
+  if(!games.length) return {penalty:0, exactPrev:false, prevTopic:false, prevGenre:null, topicReuse:0, genreReuse:0};
+  const prev=games[0];
+  const sameGenres = prev.genres.slice().sort().join("+")===genres.slice().sort().join("+");
+  const exactPrev = sameGenres && prev.topic===topicName;       // identical concept to the last game
+  const prevTopic = prev.topic===topicName;
+  const prevGenre = genres.find(g=>prev.genres.includes(g)) || null;
+  let topicReuse=0, genreReuse=0;
+  const recent=games.slice(0,K);
+  recent.forEach((g,i)=>{
+    const decay=1/(i+1);                                        // position 0 (most recent) weighs most
+    if(g.topic===topicName) topicReuse+=decay;
+    if(genres.some(x=>g.genres.includes(x))) genreReuse+=decay;
+  });
+  let penalty = exactPrev ? 0.4 : 0;                            // hard match to the last game
+  // decaying broader reuse, capped so it can't dominate the datamined fit
+  const broad = Math.min(0.3, 0.12*topicReuse + 0.08*genreReuse);
+  penalty = Math.max(penalty, broad);
+  return {penalty, exactPrev, prevTopic, prevGenre, topicReuse, genreReuse};
+}
+
+// effective ranking score: combo fit, plus your sample-gated tuning delta, minus the recency demotion.
+function effScore(p){ return p.score + (p.tune?p.tune.delta:0) - (p.repeat ? p.repeat.penalty : 0); }
+
+/* ---- "Research next": rank the topics the game is currently offering to research ---- */
+// Best achievable package if this NOT-yet-unlocked topic were unlocked today, against the
+// current platforms/audiences/genre toggle. Same inner loop as recommend(), for one topic —
+// reuses scorePackage/blend/platformMarket/effScore/recencyDemotion/tuneInfo, no new model.
+function bestPackageForTopic(topic){
+  const plats=enabledPlatforms(), auds=enabledAudiences(), cands=genreCandidates();
+  let best=null;
+  for(const gset of cands){
+    if(blend(topic.g, gset)<0.75) continue;
+    for(const p of plats){
+      if(blend(p.g, gset)<0.65) continue;
+      const mk=platformMarket(p); if(!mk.on) continue;
+      for(const a of auds){
+        const pkg=scorePackage(a,p,gset,topic);
+        if(pkg.bad) continue;
+        pkg.dated=mk.dated; pkg.share=mk.share; if(mk.dated) pkg.reach=mk.share;
+        pkg.repeat=recencyDemotion(gset, topic.name); pkg.tune=tuneInfo(pkg);
+        if(!best || effScore(pkg)>effScore(best) || (effScore(pkg)===effScore(best) && pkg.reach>best.reach)) best=pkg;
+      }
+    }
+  }
+  return best;   // null when nothing viable yet (e.g. no owned platform fits this topic)
+}
+// Offered-but-locked topics ranked by the best package they'd unlock; gain = vs your current best.
+function researchCandidates(){
+  const names=Object.keys(state.offered||{}).filter(n=>state.offered[n] && !state.topics[n]);
+  if(!names.length) return [];
+  const cur=recommend()[0];
+  const baseline=cur ? effScore(cur) : null;   // null = nothing buildable yet, no "gain vs" to show
+  return names.map(n=>TOPICS.find(t=>t.name===n)).filter(Boolean)
+    .map(t=>({topic:t, pkg:bestPackageForTopic(t)}))
+    .filter(r=>r.pkg)
+    .map(r=>({topic:r.topic, pkg:r.pkg, gain:baseline==null?null:effScore(r.pkg)-baseline}))
+    .sort((a,b)=>effScore(b.pkg)-effScore(a.pkg));
+}
+
+function recommend(){
+  const tops = enabledTopics(), plats = enabledPlatforms(), auds = enabledAudiences();
+  const cands = genreCandidates();
+  const best = new Map(); // key: genres+topic -> best package (distinct concepts)
+  for(const t of tops){
+    for(const gset of cands){
+      // quick skip: topic↔genre must be at least okay-ish
+      const tg = blend(t.g, gset);
+      if(tg<0.75) continue;
+      for(const p of plats){
+        const pg = blend(p.g, gset);
+        if(pg<0.65) continue;
+        const mk = platformMarket(p);
+        if(!mk.on) continue;                  // platform not released / already retired at the in-game date → exclude
+        for(const a of auds){
+          const pkg = scorePackage(a,p,gset,t);
+          if(pkg.bad) continue;
+          // reach: when a date is set, use the REAL market share (higher share ⇒ more sales);
+          // otherwise keep the AUD_SIZE-based proxy (labelled an estimate in the UI).
+          pkg.dated = mk.dated;
+          pkg.share = mk.share;
+          if(mk.dated) pkg.reach = mk.share;
+          pkg.repeat = recencyDemotion(gset, t.name);
+          pkg.tune = tuneInfo(pkg);
+          const key = gset.join("+")+"|"+t.name;
+          const prev = best.get(key);
+          // best platform/audience for this concept: on-market platform with the largest market share
+          // among those meeting the fit floors (reach already = share when dated). effScore then reach.
+          if(!prev || effScore(pkg)>effScore(prev) || (effScore(pkg)===effScore(prev) && pkg.reach>prev.reach)) best.set(key,pkg);
+        }
+      }
+    }
+  }
+  const sorted = [...best.values()].sort((x,y)=> effScore(y)-effScore(x) || y.reach-x.reach);
+  // pick the top 3 as varied concepts: prefer distinct topic AND genre, then relax gracefully
+  const out=[], topics=new Set(), gkeys=new Set();
+  const take=p=>{ out.push(p); topics.add(p.topic.name); gkeys.add(p.genres.join("/")); };
+  for(const p of sorted){ if(out.length>=3) break; if(!topics.has(p.topic.name) && !gkeys.has(p.genres.join("/"))) take(p); }
+  for(const p of sorted){ if(out.length>=3) break; if(!out.includes(p) && !topics.has(p.topic.name)) take(p); }
+  for(const p of sorted){ if(out.length>=3) break; if(!out.includes(p)) take(p); }
+  return out;
+}
+
+// reviewFlags (TESTING only): record when a logged outcome contradicts the model beyond a threshold,
+// so the internal dataset can be audited. Cheap, bounded, escaped on display; harmless when TESTING=false.
+function maybeFlagReview(g){
+  if(!TESTING) return;
+  if(typeof g.score!=="number") return;          // need an actual review to compare against
+  const topic=TOPICS.find(t=>t.name===g.topic); if(!topic) return;
+  // model fit using the logged platform/audience when known, else a neutral fallback
+  const platform = (g.platform && PLATFORMS.find(p=>p.name===g.platform)) || null;
+  const audience = g.audience || "Everyone";
+  let pkg=null;
+  if(platform){ pkg=scorePackage(audience, platform, g.genres, topic); }
+  const notes=[];
+  if(pkg){
+    if(pkg.bad && g.score>=8) notes.push(`model flagged BAD combo but it scored ${g.score}`);
+    if((pkg.isGreat || pkg.score>=0.95) && g.score<=6) notes.push(`model rated this great/strong (${pkg.score.toFixed(2)}) but it scored ${g.score}`);
+  }
+  // sliders that deviate a lot from the computed optimum yet scored very high
+  if(Array.isArray(g.sliders) && g.score>=9){
+    const opt=sliderOpt(effWeights(g.genres, g.topic), goldenFor(g.genres));
+    let dev=0; for(let i=0;i<9;i++) dev+=Math.abs(g.sliders[i]/100 - opt.x[i]);
+    if(dev>=2.0) notes.push(`high-scoring (${g.score}) sliders deviate a lot from optimum (L1=${dev.toFixed(2)})`);
+  }
+  if(!notes.length) return;
+  (state.reviewFlags=state.reviewFlags||[]).unshift({
+    genres:g.genres.slice(), topic:g.topic, platform:g.platform||null, audience,
+    score:g.score, expected: pkg?Math.round(pkg.score*1000)/1000:null, note:notes.join("; ")
+  });
+  if(state.reviewFlags.length>500) state.reviewFlags.length=500;
+}
+
+/* ---------------- rendering: recommendations ---------------- */
+function genreLabel(genres){ return genres.length===1 ? genres[0] : `${genres[0]} / ${genres[1]}`; }
+
+// compact fit pill — full label + tier word kept in title=, visible text is just the abbreviation + number.
+// a11y audit: the tier word (Great/Good/.../Terrible) was color-only otherwise (dotc + r-{t} text
+// color) — aria-label mirrors title= so it reaches screen readers, not just mouse hover.
+function fitChip(label, shortLabel, v){
+  const t = tier(v);
+  const full = `${label} — ${tierWord(v)} ${v.toFixed(2)}`;
+  return `<div class="fchip" title="${full}" aria-label="${full}"><span class="dotc bg-${t}"></span><span class="k">${shortLabel}</span><span class="v r-${t}">${v.toFixed(2)}</span></div>`;
+}
+// chips ranked best→worst (left→right)
+function fitChipsSorted(pkg){
+  return [{label:"Topic ↔ Genre",s:"Topic↔Genre",val:pkg.tg},{label:"Platform ↔ Genre",s:"Platform↔Genre",val:pkg.pg},
+          {label:"Topic ↔ Audience",s:"Topic↔Aud",val:pkg.ta},{label:"Platform ↔ Audience",s:"Platform↔Aud",val:pkg.pa}]
+    .sort((a,b)=>b.val-a.val).map(p=>fitChip(p.label,p.s,p.val)).join("");
+}
+
+function recCard(pkg, idx){
+  const c = el("article","card"+(pkg.isGreat?" great":"")+(pkg.repeat&&pkg.repeat.penalty>=0.4?" repeat":""));
+  c.style.setProperty("--i", idx);
+  const t = tier(pkg.fit/100);
+  c.innerHTML = `
+    <div class="rank">PICK ${idx+1}${pkg.isGreat?'<span class="badge great">★ GREAT COMBO</span>':''}</div>
+    <div class="spec">${specLine(genreLabel(pkg.genres), pkg.topic.name, platformInline(pkg), `<span class="specpair">${audIcon(pkg.audience)}${marketChip(pkg)}</span>`)}</div>
+    <div class="fitline">
+      <div class="fitnum r-${t}">${pkg.fit}</div>
+      <div class="fitbar"><i class="bg-${t}" data-w="${pkg.fit}"></i></div>
+    </div>
+    <div class="chips">${fitChipsSorted(pkg)}</div>
+    <div class="why">${buildWhy(pkg)}</div>
+    <button class="openex" type="button">Open in combo explorer ▸</button>`;
+  requestAnimationFrame(()=>{ const i=c.querySelector(".fitbar > i"); i.style.transform = "scaleX("+(+i.dataset.w/100)+")"; });
+  c.querySelector(".openex").addEventListener("click", ()=> loadInExplorer(pkg.genres, pkg.topic.name, pkg.platform.name, pkg.audience));
+  return c;
+}
+
+// Push a recommended package into the Combo Explorer and scroll to it.
+// Rec packages only ever use enabled topics/platforms, so they exist in the (Fix-A restricted) dropdowns.
+function loadInExplorer(genres, topic, platform, audience){
+  const single = genres.length===1;
+  $("#exMode").value = single ? "single" : "multi";
+  if(single){ $("#exGenre").value = genres[0]; }
+  else { $("#exPrim").value = genres[0]; $("#exSec").value = genres[1]; }
+  $("#exPlat").value = platform;
+  $("#exTopic").value = topic;
+  exAudience = audience;
+  drawAudSeg();
+  renderExplorer();
+  document.getElementById("sec-explorer").scrollIntoView({behavior:"smooth"});
+}
+
+// Tier/market/audience/era are now all carried by the header (badge, colour, icon, dot, chip) — the
+// only things left worth a line here are one-off notes that don't fit anywhere else: your own tuning
+// data, and a repeat-game caution. Both rendered as small pills; full sentence lives in title=.
+function buildWhy(pkg){
+  const chips=[];
+  if(pkg.tune && pkg.tune.n>=MIN_SAMPLES)
+    chips.push(statChip(`tuned ${pkg.tune.delta>=0?"+":""}${pkg.tune.delta.toFixed(2)}`,
+      `Tuned from your ${pkg.tune.n} games (median ${pkg.tune.median}) — rank ${pkg.tune.delta>=0?"+":""}${pkg.tune.delta.toFixed(2)}.`));
+  if(pkg.repeat && pkg.repeat.exactPrev)
+    chips.push(statChip(`⚠ repeat combo`, `Same genre + topic as your last game — ~−0.4 quality in-game.`, "r-bad"));
+  else if(pkg.repeat && pkg.repeat.penalty>0)
+    chips.push(statChip(`↺ demoted ${pkg.repeat.penalty.toFixed(2)}`,
+      `You've made ${pkg.repeat.prevTopic?"this topic":(pkg.repeat.prevGenre?"this genre":"similar games")} recently — demoted ${pkg.repeat.penalty.toFixed(2)}.`, "r-okay"));
+  return chips.join("");
+}
+
+function fmtYM(ym){ return `Y${ym[0]} M${ym[1]}`; }
+// availability / end-of-life note for a platform at the in-game date (uses the real market model dates).
+function eraNote(p){
+  const d=currentDate();
+  if(!d.set) return "";
+  const cur = d.year*12+d.month;
+  const li = LEN_IDX[state.gameLength] ?? 1;
+  const rel = p.rel[li], disc = p.disc[li];
+  if(cur < rel[0]*12+rel[1]) return `<span class="r-okay">${p.name} not released yet</span> (${fmtYM(rel)}).`;
+  if(disc){ const discM=disc[0]*12+disc[1];
+    if(cur > discM) return `<span class="r-bad">${p.name} discontinued</span> (ended ${fmtYM(disc)}).`;
+    if(discM-cur<=12) return `<span class="r-okay">${p.name} nearing end of life</span> (until ${fmtYM(disc)}).`;
+  }
+  return `${p.name} is in its prime.`;
+}
+// explorer market-share line (what-if: share over ALL platforms at the date). Empty when no date / off-market.
+function exMarketLine(p){
+  const d=currentDate(); if(!d.set) return "";
+  const raw=marketSizeRaw(p.name, d.year, d.month, state.gameLength); if(raw<=0) return "";
+  const sh=marketShare(p.name, d.year, d.month, state.gameLength, null);
+  return `<span class="muted">Market share at Y${d.year} M${d.month}: <strong>${Math.round(sh*100)}%</strong> of all platforms (more share ⇒ more sales). </span>`;
+}
+
+/* ---- "Research next" section (above the build recommendations) ---- */
+function researchCard(cand, idx){
+  const pkg=cand.pkg;
+  const c=el("article","card"+(pkg.isGreat?" great":""));
+  c.style.setProperty("--i", idx);
+  const t=tier(pkg.fit/100);
+  const gainTxt = cand.gain==null ? `<span class="r-great">would be your first buildable package</span>`
+                : cand.gain>0.0005 ? `<span class="r-great">+${cand.gain.toFixed(2)} vs your current best pick</span>`
+                                   : `<span class="muted">no lift over your current best — research when convenient</span>`;
+  c.innerHTML=`
+    <div class="rank">RESEARCH ${idx+1}<span class="badge res">🔬 OFFERED</span>${pkg.isGreat?'<span class="badge great">★ GREAT COMBO</span>':''}</div>
+    <div class="spec">${specLine(escapeHtml(cand.topic.name), genreLabel(pkg.genres), platformInline(pkg), `<span class="specpair">${audIcon(pkg.audience)}${marketChip(pkg)}</span>`)}</div>
+    <div class="fitline">
+      <div class="fitnum r-${t}">${pkg.fit}</div>
+      <div class="fitbar"><i class="bg-${t}" data-w="${pkg.fit}"></i></div>
+    </div>
+    <div class="chips">${fitChipsSorted(pkg)}</div>
+    <div class="why"><span class="small">${gainTxt}</span></div>`;
+  requestAnimationFrame(()=>{ const i=c.querySelector(".fitbar > i"); i.style.transform="scaleX("+(+i.dataset.w/100)+")"; });
+  return c;
+}
+function renderResearch(){
+  const host=$("#researchHost"); host.innerHTML="";
+  const offeredCount=Object.keys(state.offered||{}).filter(n=>state.offered[n] && !state.topics[n]).length;
+  if(!offeredCount) return;                                  // nothing offered → section disappears
+  const cands=researchCandidates();
+  const head=el("div");
+  head.innerHTML=`<div class="section-title">Research next <span class="muted" style="text-transform:none;letter-spacing:0">— best of the ${offeredCount} topic${offeredCount!==1?"s":""} the game is offering you</span></div>`;
+  host.appendChild(head);
+  if(!cands.length){
+    host.appendChild(el("div","note","Your offered topics can't be ranked yet — enable at least one owned platform that fits them, or check the in-game date."));
+  }else{
+    const grid=el("div","recs");
+    cands.slice(0,3).forEach((cd,i)=>grid.appendChild(researchCard(cd,i)));
+    host.appendChild(grid);
+  }
+  host.appendChild(el("div","divider"));
+}
+
+function renderRecs(){
+  renderResearch();                                          // same inputs + state.offered — keep in lockstep
+  const host = $("#recsHost"); host.innerHTML="";
+  const plats = enabledPlatforms(), tops = enabledTopics();
+  if(!plats.length || !tops.length){
+    host.appendChild(el("div","note", `<strong>Welcome!</strong> Open <strong>Topics</strong> and <strong>Platforms</strong> (top-right) and enable what you've unlocked in your playthrough — recommendations appear here once at least one topic and one platform are on. Log games under <strong>Games</strong> so the tool steers you away from repeats.`));
+    return;
+  }
+  const recs = recommend();
+  const audScope = state.targetedAudiences ? "Young/Everyone/Mature" : "Everyone only";
+  const scopeText = `${tops.length} topic${tops.length!==1?"s":""} × ${plats.length} platform${plats.length!==1?"s":""} × ${audScope}${state.multiGenre?" · single & two-genre":" · single-genre"}`;
+  const head = el("div");
+  head.innerHTML = `<div class="section-title">Build next
+    <span class="schip" title="Recommendation scope: ${escapeHtml(scopeText)}">${escapeHtml(scopeText)}</span></div>`;
+  host.appendChild(head);
+  if(!recs.length){ host.appendChild(el("div","note","No solid package found with the current filters — try enabling more topics/platforms, or a different audience.")); return; }
+  const grid = el("div","recs");
+  recs.forEach((p,i)=>grid.appendChild(recCard(p,i)));
+  host.appendChild(grid);
+  // long explainer notes — collapsed behind one "?" toggle instead of always-visible paragraphs
+  const notes=[];
+  if(parseInt(state.gameYear,10)>0){
+    notes.push("In-game date set: each concept's platform is the on-market one with the <strong>largest market share</strong> at that date (more share ⇒ more sales). Platforms not yet released or already retired are excluded. Market sizes are modelled from the game's own platform install-base curves (RESEARCH §6).");
+  }
+  if(state.multiGenre){
+    notes.push("Multi-genre is ON: two-genre packages are considered. A two-genre <em>great combo</em> requires both genres to be perfect (1.0) with the topic.");
+  }
+  if(notes.length){
+    const n=el("div","tiny muted scopedtog",`${infoToggle(notes.map(t=>`<p>${t}</p>`).join(""),"Recommendation notes")} how these picks are scoped`);
+    host.appendChild(n);
+  }
+}
+
+/* ---------------- rendering: slider guide ---------------- */
+// Colour/label a slider by HOW FULL it is set (not by genre weight), so an empty
+// slider is uniformly "Zero · Terrible" regardless of why it ended up at 0%.
+function fillTier(pct){
+  if(pct<=0)  return {t:"terr",  word:"Zero"};
+  if(pct<25)  return {t:"bad",   word:"Minimize"};
+  if(pct<55)  return {t:"okay",  word:"Low"};
+  if(pct<100) return {t:"good",  word:"High"};
+  return {t:"great", word:"Max"};
+}
+// In-game importance hint for a field, mirroring the game's own
+// Knowledge.getMissionWeightingDisplayText(codeNw.js v1.7.9): a field's genre/topic
+// weight → the exact +/- text the player sees once "weighting knowledge" is unlocked.
+// Multi-genre/topic-override weights are rounded to the nearest 0.1 first, exactly as
+// the game does (Math.round(10*a)/10). This is IMPORTANCE, not the slider fill.
+function weightHint(w){
+  const a = Math.round(w*10)/10;
+  if(a>=1.0) return {sym:"+++", lab:"very important",       cls:"great"};
+  if(a>=0.9) return {sym:"++",  lab:"quite important",      cls:"good"};
+  if(a>=0.8) return {sym:"-",   lab:"not very important",   cls:"okay"};
+  if(a>=0.7) return {sym:"--",  lab:"not important",        cls:"bad"};
+  return            {sym:"---", lab:"not at all important", cls:"terr"};
+}
+
+// v7: renderGuide now shows the EXACT optimal slider % from the game's own review formula
+// (Reviews.rateGame), taking the chosen topic's missionOverrides into account. topicName optional.
+function renderGuide(genres, topicName){
+  const wrap = el("div","guide");
+  const single = genres.length===1;
+  // effective design-focus weights + golden ratio + the optimizer's solution
+  const w = effWeights(genres, topicName);
+  const gr = goldenFor(genres);
+  const opt = sliderOpt(w, gr);
+  const isEstimate = opt.s < 0.3 - 1e-6;   // optimizer couldn't reach the full +0.3 bonus → mark as estimate
+  const topicLabel = topicName ? ` · ${escapeHtml(topicName)}` : "";
+
+  // honesty note + footnote block — full text preserved, just moved behind a "?" toggle next to the title
+  const honestyPara = `Optimal time-split <strong>${single?"":"(primary "+escapeHtml(genres[0])+" weighted ⅔) "}</strong>from the game's own review formula${topicName?` (with <strong>${escapeHtml(topicName)}</strong>'s topic overrides)`:""}. Following it maxes the design score (≈+0.3); the final review still depends on combo fit, bugs, staff, game size and a small RNG — so it's the best possible sliders, not a guaranteed 10.`
+    + (isEstimate ? ` <span class="r-okay">Exact optimum not pinnable for this combo — showing the best estimate.</span>` : "");
+  const rulePara = `Rule: never leave a Max (green) slider below 20%; never push a red slider above 40%.`;
+  const impPara = `The <b>+++ … ---</b> chip under each field is the game's own importance hint for this genre${topicName?"/topic":""} (it matches the in-game weighting hint): <b>+++</b> very · <b>++</b> quite · <b>-</b> not very · <b>--</b> not · <b>---</b> not at all important. The <b>%</b> above is how full to set the slider — the optimizer concentrates time on the important fields while still hitting the Design/Tech balance, so the most-important field is not always 100%.`;
+  const guideInfo = infoToggle(`<p>${honestyPara}</p><p>${rulePara}</p><p>${impPara}</p>`, "About this guide");
+  wrap.appendChild(el("h3",null, `${escapeHtml(genreLabel(genres))}${topicLabel} — design guide${isEstimate?'<span class="estbadge">estimate</span>':''} ${guideInfo}`));
+
+  // D/T gauge (uses the golden ratio for these genres)
+  const tdRatio = r2(gr);
+  const designPct = Math.round(100/(1+tdRatio));
+  const techPct = 100-designPct;
+  const dt = el("div","dt");
+  dt.innerHTML = `
+    <div class="lbl"><span>Design / Technology balance</span><span>target T:D ${tdRatio.toFixed(2)} · Design ${designPct}% / Tech ${techPct}%</span></div>
+    <div class="dtbar"><span class="design" style="width:${designPct}%">Design ${designPct}%</span><span class="tech" style="width:${techPct}%">Tech ${techPct}%</span></div>`;
+
+  // vertical sliders, grouped by stage (like the in-game development screen) — show the single optimal %
+  const stages = el("div","vstages");
+  STAGES.forEach((idxs, si)=>{
+    const st = el("div","vstage"+(isEstimate?" est":""));
+    st.appendChild(el("div","sh", `Stage ${si+1}`));
+    const sl = el("div","vsliders");
+    idxs.forEach(ai=>{
+      const pct = Math.round(opt.x[ai]*100);   // EXACT optimal slider fill for this field
+      const ft = fillTier(pct);
+      const wh = weightHint(w[ai]);            // the game's own +/- importance hint for this field
+      const v = el("div","vslider");
+      v.innerHTML = `
+        <div class="pct r-${ft.t}">${pct}%</div>
+        <div class="vtrack"><span class="tick40"></span><i class="bg-${ft.t}" data-w="${pct}"></i></div>
+        <div class="anm">${AREAS[ai]}</div>
+        <div class="imp imp-${wh.cls}" title="In-game weighting hint for this genre/topic: &quot;${escapeHtml(wh.lab)}&quot;">${wh.sym}</div>
+        <div class="word r-${ft.t}">${ft.word}</div>`;
+      sl.appendChild(v);
+    });
+    st.appendChild(sl);
+    stages.appendChild(st);
+  });
+  wrap.appendChild(stages);
+  wrap.appendChild(dt);   // Design/Technology balance shown under the stages
+
+  const lg = el("div","legend");
+  lg.innerHTML = `
+    <span><span class="dotc bg-great"></span>100% Max</span>
+    <span><span class="dotc bg-good"></span>55–99% High</span>
+    <span><span class="dotc bg-okay"></span>25–54% Low</span>
+    <span><span class="dotc bg-bad"></span>1–24% Minimize</span>
+    <span><span class="dotc bg-terr"></span>0% Zero</span>
+    <span class="muted">colour = how full to set it · white line = 40% scoring threshold</span>`;
+  wrap.appendChild(lg);
+
+  // slider learning (secondary): surface your highest-scoring logged slider set as a labelled alternative
+  const learned = bestLoggedSliders(genres, topicName);
+  if(learned){
+    const lv = el("div","learned");
+    lv.innerHTML = `<b>Your best-scoring set</b> (${escapeHtml(learned.scope)}, score ${learned.score}): `
+      + `<span class="sv">${learned.sliders.map((n,i)=>`${AREAS[i].slice(0,3)} ${n}%`).join(" · ")}</span>`
+      + ` <span class="muted">— shown as an alternative; the computed optimum above is unchanged.</span>`;
+    wrap.appendChild(lv);
+  }
+
+  requestAnimationFrame(()=>{
+    wrap.querySelectorAll(".vtrack > i").forEach(i=>{ i.style.transform = "scaleY("+(+i.dataset.w/100)+")"; });
+    wrap.querySelectorAll(".dtbar > span").forEach(s=>{ if(s.dataset.w!=null) s.style.width = s.dataset.w+"%"; });
+  });
+  return wrap;
+}
+
+function renderGuideTab(){
+  const mode = $("#gMode").value;
+  $("#gGenreWrap").hidden = mode!=="single";
+  $("#gPrimWrap").hidden = mode!=="multi";
+  $("#gSecWrap").hidden = mode!=="multi";
+  const host = $("#guideHost"); host.innerHTML="";
+  let genres;
+  if(mode==="single") genres=[$("#gGenre").value];
+  else { const p=$("#gPrim").value, s=$("#gSec").value; if(p===s){ host.appendChild(el("div","note","Pick two different genres.")); return; } genres=[p,s]; }
+  // standalone guide has no topic selector → pass null (genre-only optimum; missionOverrides not applied)
+  host.appendChild(renderGuide(genres, null));
+}
+
+/* ---------------- rendering: explorer ---------------- */
+function renderExplorer(){
+  const mode=$("#exMode").value;
+  $("#exGenreWrap").hidden = mode!=="single";
+  $("#exPrimWrap").hidden = mode!=="multi";
+  $("#exSecWrap").hidden = mode!=="multi";
+  const clearStrips=()=>{ $("#exWarn").className="warnstrip"; $("#exGood").className="goodstrip"; $("#exRepeat").className="repeatstrip"; $("#exGuide").innerHTML=""; };
+  // require explicit selections — no automatic fit score on page load
+  const platName=$("#exPlat").value, topName=$("#exTopic").value;
+  let genres=null;
+  if(mode==="single"){ const g=$("#exGenre").value; if(g) genres=[g]; }
+  else { const p=$("#exPrim").value,s=$("#exSec").value;
+    if(p&&s){ if(p===s){ $("#exBreakdown").innerHTML='<div class="note">Pick two different genres.</div>'; clearStrips(); return; } genres=[p,s]; } }
+  if(!platName || !topName || !genres){
+    // full-size placeholder card (same shell as the real breakdown) until everything is picked
+    let gHtml;
+    if(mode==="single") gHtml = $("#exGenre").value || '<span class="ph">Pick Genre</span>';
+    else { const p=$("#exPrim").value, s=$("#exSec").value;
+      gHtml = (p || '<span class="ph">Pick Genre</span>') + ' <span class="muted">/</span> ' + (s || '<span class="ph">Pick Genre</span>'); }
+    const tHtml = topName || '<span class="ph">Pick Topic</span>';
+    const pHtml = platName || '<span class="ph">Pick Platform</span>';
+    const bd=el("div","breakdown");
+    bd.innerHTML=`
+      <div class="bd-head">
+        <div><div class="spec" style="font-size:16px;font-weight:650">${specLine(gHtml, tHtml, pHtml, audIcon(exAudience))}</div></div>
+        <div style="text-align:right"><div class="fitnum" style="font-size:28px;color:var(--mut2)">0</div><div class="tiny muted">fit score</div></div>
+      </div>
+      <div class="why small" style="margin-top:11px">Pick a <strong>platform</strong>, <strong>genre</strong> and <strong>topic</strong> above — the fit breakdown, sales-reach estimate and full slider guide will appear here.</div>`;
+    $("#exBreakdown").innerHTML=""; $("#exBreakdown").appendChild(bd);
+    clearStrips(); return;
+  }
+  const topic = TOPICS.find(t=>t.name===topName);
+  const platform = PLATFORMS.find(p=>p.name===platName);
+  const audience = exAudience;
+  const pkg = scorePackage(audience, platform, genres, topic);
+
+  // warnings / great strip
+  const good=$("#exGood"), warn=$("#exWarn");
+  if(pkg.isGreat){ good.className="goodstrip show"; good.innerHTML=`★ <strong>Great combination</strong> — ${genreLabel(genres)} + ${topic.name} grants the perfect-pairing quality &amp; experience bonus.`; }
+  else good.className="goodstrip";
+  const probs=[];
+  if(pkg.tg<0.75) probs.push(`topic↔genre is <strong>${tierWord(pkg.tg)}</strong> (${pkg.tg.toFixed(2)})`);
+  if(pkg.pg<0.7) probs.push(`platform↔genre is <strong>${tierWord(pkg.pg)}</strong>`);
+  if(pkg.ta<0.7) probs.push(`topic↔audience is <strong>${tierWord(pkg.ta)}</strong>`);
+  if(pkg.pa<0.7) probs.push(`platform↔audience is <strong>${tierWord(pkg.pa)}</strong>`);
+  if(probs.length){ warn.className="warnstrip show"; warn.innerHTML=`⚠ Weak combo: ${probs.join("; ")}. The game will penalise this — consider a better pairing.`; }
+  else warn.className="warnstrip";
+
+  // repeat-game warning (uses your logged games)
+  const rep=recencyDemotion(genres, topName); const er=$("#exRepeat");
+  if(rep.exactPrev){ er.className="repeatstrip show"; er.innerHTML=`⚠ Your last game was the same <strong>${escapeHtml(genreLabel(genres))}</strong> + <strong>${escapeHtml(topName)}</strong>. Reusing the same genre + topic back-to-back costs about <strong>−0.4 quality</strong> in-game — vary it.`; }
+  else if(rep.penalty>0){ er.className="repeatstrip show"; er.innerHTML=`↺ You've made ${rep.prevTopic?`a <strong>${escapeHtml(topName)}</strong> game`:(rep.prevGenre?`a <strong>${escapeHtml(rep.prevGenre)}</strong> game`:`similar games`)} recently — recommendations demote this by ${rep.penalty.toFixed(2)}. Variety keeps reviews high.`; }
+  else er.className="repeatstrip";
+
+  const t=tier(pkg.fit/100);
+  const bd=el("div","breakdown");
+  bd.innerHTML=`
+    <div class="bd-head">
+      <div><div class="spec" style="font-size:16px;font-weight:650">${specLine(genreLabel(genres), topic.name, platformInline(pkg,{era:false}), audIcon(audience))}</div></div>
+      <div style="text-align:right"><div class="fitnum r-${t}" style="font-size:28px">${pkg.fit}</div><div class="tiny muted">fit score</div></div>
+    </div>
+    <div class="bd-grid">${fitChipsSorted(pkg)}</div>
+    <div class="why small" style="margin-top:11px">${eraNote(platform)||""} ${exMarketLine(platform)}<span class="muted">Sales-reach estimate: ${(pkg.reach).toFixed(2)} (audience size × platform audience-fit × platform genre-fit).</span></div>`;
+  $("#exBreakdown").innerHTML=""; $("#exBreakdown").appendChild(bd);
+  // pass the chosen topic so the guide applies its missionOverrides to the optimal sliders
+  $("#exGuide").innerHTML=""; $("#exGuide").appendChild(renderGuide(genres, topName));
+}
+
+/* ---------------- overlays (Topics / Platforms / Audiences) ---------------- */
+const overlay=$("#overlay");
+function openOverlay(title, bodyEl, footEl, opts){
+  $("#ovTitle").textContent=title;
+  const b=$("#ovBody"); b.innerHTML=""; b.appendChild(bodyEl);
+  const f=$("#ovFoot"); f.innerHTML=""; if(footEl) f.appendChild(footEl);
+  document.querySelector(".sheet").classList.toggle("wide", !!(opts && opts.wide));
+  overlay.classList.add("open");
+}
+function closeOverlay(){ overlay.classList.remove("open"); syncExplorerOptions(); refreshAll(); }
+$("#ovClose").onclick=closeOverlay;
+overlay.addEventListener("click",e=>{ if(e.target===overlay) closeOverlay(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&overlay.classList.contains("open")) closeOverlay(); });
+
+function topicsOverlay(){
+  const body=el("div");
+  const search=el("input","searchbox"); search.placeholder="Filter topics…"; search.type="search";
+  const bulk=el("div","bulk");
+  bulk.innerHTML=`<button data-act="all">Enable all</button><button data-act="none">Disable all</button>
+    <button data-act="classic">Only classic (51)</button><span class="count" style="margin-left:auto"></span>`;
+  const list=el("div","list");
+  body.append(search,bulk,list);
+  function draw(){
+    const q=search.value.trim().toLowerCase();
+    list.innerHTML="";
+    const shown=TOPICS.filter(t=>!q||t.name.toLowerCase().includes(q));
+    if(!shown.length){ list.appendChild(el("div","empty","No topics match.")); }
+    for(const t of shown){
+      const row=el("label","item");
+      const great=GENRES.filter(g=>t.g[GI[g]]===1.0).slice(0,4)
+        .map(g=>`<span class="gtag bg-great" title="Great with ${g}">${g.slice(0,3)}</span>`).join("");
+      const unlocked=!!state.topics[t.name];
+      row.innerHTML=`<input type="checkbox" ${unlocked?"checked":""}>
+        <span class="nm">${t.name}${t.ext?' <span class="ext-flag" title="Extended roster — confirmed by the datamined v1.7.9 guide but not older sources; verify vs your game version.">ext</span>':''}</span>
+        ${unlocked?'':`<button type="button" class="offbtn${state.offered[t.name]?" on":""}" title="The game is currently offering this topic to research — ranked under &quot;Research next&quot;.">offered</button>`}
+        <span class="tags">${great}</span>`;
+      row.querySelector("input").onchange=e=>{ state.topics[t.name]=e.target.checked; if(e.target.checked) delete state.offered[t.name]; saveState(); updateCounts(); draw(); };
+      const ob=row.querySelector(".offbtn");
+      if(ob) ob.onclick=e=>{ e.preventDefault(); e.stopPropagation();   // don't let the row-label toggle the unlock checkbox
+        if(state.offered[t.name]) delete state.offered[t.name]; else state.offered[t.name]=true;
+        saveState(); draw(); };
+      list.appendChild(row);
+    }
+    const offN=Object.keys(state.offered).filter(n=>state.offered[n]&&!state.topics[n]).length;
+    bulk.querySelector(".count").textContent = `${Object.values(state.topics).filter(Boolean).length} / ${TOPICS.length} enabled${offN?` · ${offN} offered`:""}`;
+  }
+  search.oninput=draw;
+  bulk.onclick=e=>{ const a=e.target.dataset.act; if(!a)return;
+    if(a==="all") TOPICS.forEach(t=>{state.topics[t.name]=true; delete state.offered[t.name];});
+    if(a==="none") TOPICS.forEach(t=>state.topics[t.name]=false);
+    if(a==="classic") TOPICS.forEach(t=>{state.topics[t.name]=!t.ext; if(!t.ext) delete state.offered[t.name];});
+    saveState(); draw(); updateCounts(); };
+  draw();
+  openOverlay("Unlocked topics", body, null);
+  setTimeout(()=>search.focus(),60);
+}
+
+function platformsOverlay(){
+  const body=el("div");
+  const bulk=el("div","bulk");
+  bulk.innerHTML=`<button data-act="all">Own all</button><button data-act="none">Own none</button><span class="count" style="margin-left:auto"></span>`;
+  const list=el("div","list");
+  body.append(bulk,list);
+  function draw(){
+    list.innerHTML="";
+    const li=LEN_IDX[state.gameLength]??1;
+    for(const p of platformsByDate()){
+      const row=el("label","item");
+      const rl=p.rel[li], dc=p.disc[li];
+      row.innerHTML=`<input type="checkbox" ${state.platforms[p.name]?"checked":""}>
+        <span class="nm">${p.name} <span class="muted tiny">${p.real}</span></span>
+        <span class="tags tiny muted">Y${rl[0]} M${rl[1]}${dc?` → Y${dc[0]} M${dc[1]}`:' → end'}</span>`;
+      row.querySelector("input").onchange=e=>{ state.platforms[p.name]=e.target.checked; saveState(); updateCounts(); };
+      list.appendChild(row);
+    }
+    bulk.querySelector(".count").textContent=`${Object.values(state.platforms).filter(Boolean).length} / ${PLATFORMS.length} owned`;
+  }
+  bulk.onclick=e=>{ const a=e.target.dataset.act; if(!a)return;
+    PLATFORMS.forEach(p=>state.platforms[p.name]=(a==="all")); saveState(); draw(); updateCounts(); };
+  draw();
+  openOverlay("Owned / available platforms", body, null);
+}
+
+function tipsOverlay(){
+  const body=el("div");
+  body.innerHTML = `
+    <div class="small muted" style="margin-bottom:12px">Quick reference from the GDT wiki + quickstart guide (v1.7.9). In-game dates use the standard clock; <span class="q">?</span> = exact RP cost not published.</div>
+
+    <div class="tsec"><h4>Quickstart tips</h4>
+      <ol class="tlist">
+        <li>Don't reuse the same genre + topic for back-to-back games.</li>
+        <li>Accept every interview and pick the truthful answer.</li>
+        <li>Build a fresh custom engine every 1–3 new researches.</li>
+        <li>Patch games that shipped with bugs to win fans back.</li>
+        <li>In the garage &amp; first office, only train yourself.</li>
+        <li>Large games: use 2D&nbsp;V4+ or 3D&nbsp;V3+ graphics.</li>
+        <li>Keep a Tech/Design staff balance (≈2 design · 2 tech · 2 balanced).</li>
+        <li>Only sequel / expand at least a year after the original.</li>
+        <li>AAA games: 3D&nbsp;V6+ graphics only.</li>
+        <li>AAA games: 3+ specialised employees (more is better).</li>
+        <li>Always be building a console once you can afford it (~$200M+).</li>
+        <li>Train all employees once you reach the second office.</li>
+      </ol>
+    </div>
+
+    <div class="tsec"><h4>Mechanics reminders</h4>
+      <ul class="tlist">
+        <li><b>Slider focus:</b> max the genre's important fields, starve the rest — never spread evenly.</li>
+        <li><b>D/T balance:</b> match the genre's Design : Tech target (Adventure/RPG → Design; Action/Sim/Strategy → Tech).</li>
+        <li><b>Kill all bugs</b> before release or take a score hit.</li>
+        <li><b>Team size:</b> ~3 staff Medium · ~5 Large · ~6 AAA.</li>
+        <li><b>Audience:</b> match it to both the topic and the platform.</li>
+        <li><b>Great combo</b> = a topic↔genre the game rates perfect; great combo + high quality = top score.</li>
+        <li><b>Multi-genre:</b> primary genre counts ⅔, secondary ⅓ — bias sliders to the primary.</li>
+        <li><b>Post-release report</b> grants research points + quality insight — always run it.</li>
+      </ul>
+    </div>
+
+    <div class="tsec"><h4>Unlocks — feature milestones</h4>
+      <div class="small muted" style="margin:-2px 0 6px">Special researches appear at the date shown, then cost research points (RP).</div>
+      <ul class="tlist">
+        <li><b>Target Audience</b> (Young/Mature) — available <b>Y3 M1</b> <span class="q">?RP</span>. This is the “Targeted Audiences” switch above.</li>
+        <li><b>Casual Games</b> — <b>Y3 M11</b>.</li>
+        <li><b>Marketing</b> — <b>Y4 M5</b>.</li>
+        <li><b>Sequels</b> — <b>Y8 M6</b>; wait ≥1 yr &amp; use a new engine.</li>
+        <li><b>Multi Genre</b> (two genres) — <b>Y12 M8</b>. Enables the multi-genre switch above.</li>
+        <li><b>Multi-Platform</b> — Multi Genre + <b>Y17 M2</b>.</li>
+        <li><b>R&amp;D Lab</b> — 4th office; needs ≈<b>$10M</b> + a Design Specialist. Gateway to the researches below.</li>
+        <li><b>AAA Games</b> — 800 RP; unlocks after a Large game scores <b>9.25+</b>. Needs ~6 staff (3+ specialised programmers), 3D V6+.</li>
+        <li><b>MMO</b> — 800 RP (after Internet Opportunities, 500 RP). Expansion packs need an MMO on sale.</li>
+        <li><b>Hardware Lab</b> (custom console) — after R&amp;D Lab + a Tech Specialist + Hardware research (800 RP).</li>
+        <li><b>Own Convention</b> — 500 RP; event runs at 1M fans or Year 23.</li>
+        <li><b>Custom engine</b> — from the start; rebuild with the newest graphics tier before each platform wave.</li>
+      </ul>
+    </div>
+
+    <div class="tsec"><h4>Unlocks — offices &amp; topics</h4>
+      <ul class="tlist">
+        <li><b>Garage</b> → <b>Office 2</b> (~5 staff): ~Y4–5, ≈$1M, after Staff Management training.</li>
+        <li>→ <b>Office 3</b> (Tech Park): <b>Y11 M6</b>, $5M, 2 staff.</li>
+        <li>→ <b>Office 4</b> (final): <b>Y13 M9</b>, $16M, 4 staff — R&amp;D &amp; Hardware labs live here.</li>
+        <li><b>Topics</b> are bought with research points — <b>10 RP each</b>, you choose which; more become available over time. <b>No fixed order</b>, so curate the Topics list to what you've actually unlocked — and tag the ones the game is currently offering with the <b>offered</b> pill to get a "Research next" ranking.</li>
+        <li>RP comes from games, contract work, building engines, post-release reports, and a funded R&amp;D Lab.</li>
+      </ul>
+    </div>`;
+  openOverlay("Tips & Unlocks", body, null, {wide:true});
+}
+
+function gamesOverlay(){
+  const body=el("div");
+  const form=el("div","gform");
+  const gOpts=GENRES.map(g=>`<option>${g}</option>`).join("");
+  form.innerHTML=`
+    <div class="full"><label>Genre mode</label><select id="gfMode"><option value="single">Single genre</option><option value="multi">Two genres</option></select></div>
+    <div id="gfGenreCell"><label>Genre</label><select id="gfGenre">${gOpts}</select></div>
+    <div id="gfPrimCell" hidden><label>Primary</label><select id="gfPrim">${gOpts}</select></div>
+    <div id="gfSecCell" hidden><label>Secondary</label><select id="gfSec">${GENRES.map((g,i)=>`<option ${i===1?"selected":""}>${g}</option>`).join("")}</select></div>
+    <div class="full"><label>Topic</label><select id="gfTopic"><option value="">— topic —</option>${TOPICS.map(t=>`<option>${escapeHtml(t.name)}</option>`).join("")}</select></div>
+    <div><label>Platform (optional)</label><select id="gfPlat"><option value="">—</option>${PLATFORMS.map(p=>`<option>${escapeHtml(p.name)}</option>`).join("")}</select></div>
+    <div><label>Review score (optional)</label><input type="number" id="gfScore" min="1" max="10" step="0.5" placeholder="1–10"></div>
+    <div class="full"><label>Sliders used (optional, 9 values 0–100)</label><input type="text" id="gfSliders" placeholder="e.g. 60,100,0, 40,90,0, 30,70,50" inputmode="numeric"></div>
+    <div><label>Game year (optional)</label><input type="number" id="gfYear" min="1" max="42" placeholder="Y"></div>
+    <div><label>Game month (optional)</label><input type="number" id="gfMonth" min="1" max="12" placeholder="M"></div>
+    <button class="addbtn" id="gfAdd">+ Log this game</button>`;
+  body.appendChild(form);
+  const insights=el("div","insights"); body.appendChild(insights);
+  const list=el("div","list"); body.appendChild(list);
+
+  function draw(){
+    const games=state.games||[];
+    const scored=games.filter(g=>typeof g.score==="number");
+    const avg = scored.length ? (scored.reduce((a,g)=>a+g.score,0)/scored.length).toFixed(1) : "–";
+    insights.innerHTML = games.length
+      ? `<b>${games.length}</b> game${games.length!==1?"s":""} logged · avg review <b>${avg}</b>${games[0]?` · last made: <b>${escapeHtml(genreLabel(games[0].genres))} · ${escapeHtml(games[0].topic)}</b> — recommendations now avoid repeating it`:""}`
+      : `No games logged yet. Add games you've already made and the tool will steer you away from repeating the same genre/topic back-to-back (Game Dev Tycoon penalises that by about −0.4 quality).`;
+    list.innerHTML="";
+    if(!games.length){ list.appendChild(el("div","empty","Your made-games log is empty.")); }
+    games.forEach((g,i)=>{
+      const row=el("div","item");
+      const dateStr = g.date ? ("Y"+g.date.y+(g.date.m?(" M"+g.date.m):"")) : null;
+      const meta=[g.platform, g.audience, dateStr, (typeof g.score==="number"?("★ "+g.score):null), (g.sliders?"sliders ✓":null)].filter(Boolean).map(escapeHtml).join(" · ");
+      row.innerHTML=`<span class="gnum">${i+1}</span>
+        <span class="nm">${escapeHtml(genreLabel(g.genres))} <span class="muted">·</span> ${escapeHtml(g.topic)}${meta?` <span class="muted tiny">— ${meta}</span>`:""}</span>`;
+      const rm=el("button","grm",""); rm.textContent="×"; rm.title="Remove"; rm.setAttribute("aria-label","Remove");
+      rm.onclick=()=>{ state.games.splice(i,1); saveState(); draw(); updateCounts(); refreshEra(); };
+      row.appendChild(rm); list.appendChild(row);
+    });
+  }
+  form.querySelector("#gfMode").onchange=e=>{ const m=e.target.value==="multi";
+    form.querySelector("#gfGenreCell").hidden=m; form.querySelector("#gfPrimCell").hidden=!m; form.querySelector("#gfSecCell").hidden=!m; };
+  form.querySelector("#gfAdd").onclick=()=>{
+    const mode=form.querySelector("#gfMode").value;
+    let genres = mode==="single" ? [form.querySelector("#gfGenre").value]
+                                 : [form.querySelector("#gfPrim").value, form.querySelector("#gfSec").value];
+    genres=genres.filter(g=>GENRE_SET.has(g)); if(genres.length===2&&genres[0]===genres[1]) genres=[genres[0]];
+    const topic=form.querySelector("#gfTopic").value;
+    if(!genres.length || !TOPIC_SET.has(topic)){ alert("Pick a genre and a topic for the game."); return; }
+    const g={genres, topic};
+    const plat=form.querySelector("#gfPlat").value; if(PLAT_SET.has(plat)) g.platform=plat;
+    const sc=parseFloat(form.querySelector("#gfScore").value); if(Number.isFinite(sc)&&sc>=1&&sc<=10) g.score=Math.round(sc*10)/10;
+    // optional sliders used: parse 9 comma/space-separated values 0-100 (all-or-nothing)
+    const slRaw=form.querySelector("#gfSliders").value.trim();
+    if(slRaw){
+      const parts=slRaw.split(/[\s,]+/).filter(Boolean).map(Number);
+      if(parts.length===9 && parts.every(n=>Number.isFinite(n)&&n>=0&&n<=100)) g.sliders=parts.map(n=>Math.round(n));
+      else { alert("Sliders need exactly 9 numbers between 0 and 100 (or leave blank)."); return; }
+    }
+    // optional game date
+    const gy=parseInt(form.querySelector("#gfYear").value,10), gm=parseInt(form.querySelector("#gfMonth").value,10);
+    if(Number.isFinite(gy)&&gy>=1&&gy<=99){ g.date={y:gy}; if(Number.isFinite(gm)&&gm>=1&&gm<=12) g.date.m=gm; }
+    maybeFlagReview(g);                         // TESTING-only diagnostic; no-op in the public build
+    state.games.unshift(g); if(state.games.length>200) state.games.length=200;
+    ["#gfTopic","#gfScore","#gfSliders","#gfYear","#gfMonth"].forEach(s=>form.querySelector(s).value="");
+    saveState(); draw(); updateCounts(); refreshEra();
+  };
+  draw();
+  openOverlay("Games you've made", body, null, {wide:true});
+}
+
+function privacyOverlay(){
+  const body=el("div","about"); body.style.fontSize="13px";
+  body.innerHTML=`
+    <p><strong>Everything stays on your device.</strong></p>
+    <ul class="tlist">
+      <li>This is a <b>static tool that also works offline</b> — <b>no server, no account, no cookies, no third-party scripts</b>. Nothing you enter is uploaded anywhere. The live site sends a single anonymous visit count to GoatCounter (page path, query string and referrer, no cookies, Do Not Track honored); a downloaded copy sends nothing at all.</li>
+      <li>Your settings (unlocked topics &amp; platforms, the audience &amp; multi-genre toggles, game length, in-game date) and your <b>game log</b> are kept in this browser's <b>local storage</b> so you can pick up where you left off.</li>
+      <li><b>Export / Import</b> (☰ menu) back up or move that data as a file — it only leaves your device if you share the file yourself.</li>
+      <li><b>Delete it anytime:</b> use <b>Reset to defaults</b> (☰ menu) or clear this site's data in your browser.</li>
+      <li>Because the data never leaves your device and you control it directly, this storage is <b>functional / strictly necessary</b> and exempt from cookie-consent rules under the EU ePrivacy Directive (Art. 5(3)); we still show a notice and let you decline.</li>
+    </ul>
+    <button class="btn-ghost" id="pvClear">Clear my saved data now</button>
+    <p class="tiny muted" style="margin-top:10px">Plain-language summary, not legal advice. See PRIVACY.md in the repository.</p>`;
+  openOverlay("Privacy & data", body, null, {wide:true});
+  $("#pvClear").onclick=()=>{ if(confirm("Clear all saved GDT Assistant data on this device?")){ try{localStorage.removeItem(LS_KEY);}catch(e){} const c=state.consent; state=clone(DEFAULT_STATE); state.consent=c; if(c==="accepted") saveState(); syncControls(); refreshAll(); closeOverlay(); } };
+}
+
+/* ---------------- export / import ---------------- */
+function exportState(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=el("a"); a.href=url; a.download="gdt-assistant-settings.json"; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+}
+// TESTING-only: download the internal review-flags log (model-vs-reality contradictions) as JSON.
+function exportFlags(){
+  const data = state.reviewFlags||[];
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=el("a"); a.href=url; a.download="gdt-assistant-review-flags.json"; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+}
+function importState(file){
+  if(!file || file.size>500000){ alert("That file is too large or invalid to be a GDT Assistant backup."); return; }
+  const fr=new FileReader();
+  fr.onload=()=>{ try{
+    const s=JSON.parse(fr.result);
+    if(!s || typeof s!=="object" || Array.isArray(s)) throw 0;
+    state=mergeState(s);            // strict whitelist validation; ignores anything unrecognised
+    state.consent="accepted";       // importing your own backup implies you want it saved
+    saveState(); syncControls(); refreshAll(); hideConsent();
+  }catch(e){ alert("Could not read that file — expected a GDT Assistant settings export (JSON)."); } };
+  fr.readAsText(file);
+}
+
+/* ---------------- control wiring ---------------- */
+function fillGenreSelect(sel, val){ sel.innerHTML=GENRES.map(g=>`<option ${g===val?"selected":""}>${g}</option>`).join(""); }
+function fillSelect(sel, items, val){ sel.innerHTML=items.map(i=>`<option ${i===val?"selected":""}>${i}</option>`).join(""); }
+
+/* v4 helpers: date-ordered platforms, blank-start explorer selects, audience segmented control */
+let exAudience = "Everyone";   // explorer audience (transient UI state, not persisted)
+function platformsByDate(){
+  const li=LEN_IDX[state.gameLength]??1;
+  return PLATFORMS.slice().sort((a,b)=>(a.rel[li][0]*12+a.rel[li][1])-(b.rel[li][0]*12+b.rel[li][1]) || a.name.localeCompare(b.name));
+}
+// enabled (owned) platforms only, still ordered by release date for the current game length
+function enabledPlatformsByDate(){
+  const li=LEN_IDX[state.gameLength]??1;
+  return enabledPlatforms().sort((a,b)=>(a.rel[li][0]*12+a.rel[li][1])-(b.rel[li][0]*12+b.rel[li][1]) || a.name.localeCompare(b.name));
+}
+// Explorer dropdowns mirror the toggled-on Topics/Platforms (not the whole dataset).
+// Preserve the current selection if it's still enabled, else fall back to the placeholder.
+function fillExPlat(){
+  const cur=$("#exPlat").value;
+  $("#exPlat").innerHTML='<option value="">— platform —</option>'+enabledPlatformsByDate().map(p=>`<option ${p.name===cur?"selected":""}>${p.name}</option>`).join("");
+}
+function fillExTopic(){
+  const cur=$("#exTopic").value;
+  $("#exTopic").innerHTML='<option value="">— topic —</option>'+enabledTopics().map(t=>`<option ${t.name===cur?"selected":""}>${t.name}</option>`).join("");
+}
+function syncExplorerOptions(){ fillExPlat(); fillExTopic(); }
+function fillGenrePH(sel){ sel.innerHTML='<option value="">— genre —</option>'+GENRES.map(g=>`<option>${g}</option>`).join(""); }
+function drawAudSeg(){
+  $("#exAudSeg").querySelectorAll("button").forEach(b=>{
+    const a=b.dataset.aud;
+    b.classList.toggle("locked", !state.targetedAudiences && a!=="Everyone");
+    b.classList.toggle("on", a===exAudience);
+  });
+}
+function pulseTA(){ const b=$("#taBox"); b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); }
+
+function syncControls(){
+  $("#themeToggle").checked=state.theme==="light"; applyTheme();
+  $("#mgToggle").checked=state.multiGenre;
+  $("#taToggle").checked=state.targetedAudiences;
+  $("#gameYear").value=state.gameYear??"";
+  $("#gameMonth").value=state.gameMonth??"";
+  drawLenSeg();
+  // guide selects
+  fillGenreSelect($("#gGenre"),state.primary);
+  fillGenreSelect($("#gPrim"),state.primary);
+  fillGenreSelect($("#gSec"),state.secondary);
+  // explorer selects — start blank (no auto fit score); options mirror enabled Topics/Platforms (date-ordered)
+  syncExplorerOptions();
+  fillGenrePH($("#exGenre")); fillGenrePH($("#exPrim")); fillGenrePH($("#exSec"));
+  exAudience="Everyone"; drawAudSeg();
+  updateCounts();
+}
+function updateCounts(){
+  $("#cntTopics").textContent=Object.values(state.topics).filter(Boolean).length;
+  $("#cntPlatforms").textContent=Object.values(state.platforms).filter(Boolean).length;
+  $("#cntGames").textContent=(state.games||[]).length;
+}
+
+// one page: render all three sections; era depends on date/length only
+function refreshAll(){ renderRecs(); renderExplorer(); renderGuideTab(); }
+function refreshEra(){ renderRecs(); renderExplorer(); }
+
+/* hamburger menu */
+const menu=$("#menu"), menuBtn=$("#btnMenu");
+function toggleMenu(force){ const show=(typeof force==="boolean")?force:menu.hidden; menu.hidden=!show; menuBtn.setAttribute("aria-expanded", show?"true":"false"); }
+menuBtn.onclick=e=>{ e.stopPropagation(); toggleMenu(); };
+document.addEventListener("click",e=>{ if(!menu.hidden && !menu.contains(e.target) && !menuBtn.contains(e.target)) toggleMenu(false); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !menu.hidden) toggleMenu(false); });
+
+/* game-length segmented control (in the ☰ menu) */
+function drawLenSeg(){ $("#lenSeg").querySelectorAll("button").forEach(b=>b.classList.toggle("on", +b.dataset.len===state.gameLength)); }
+$("#lenSeg").onclick=e=>{ const L=+(e.target.dataset.len||0); if(!L) return; state.gameLength=L; saveState(); drawLenSeg(); syncExplorerOptions(); refreshEra(); };
+
+/* control events */
+$("#themeToggle").onchange=e=>{ state.theme=e.target.checked?"light":"dark"; saveState(); applyTheme(); };
+$("#mgToggle").onchange=e=>{ state.multiGenre=e.target.checked; saveState(); renderRecs(); };
+$("#taToggle").onchange=e=>{ state.targetedAudiences=e.target.checked; if(!state.targetedAudiences) exAudience="Everyone"; saveState(); drawAudSeg(); renderRecs(); renderExplorer(); };
+/* explorer audience segmented control: locked audiences pulse the toggle instead of selecting */
+$("#exAudSeg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return;
+  const a=b.dataset.aud;
+  if(!state.targetedAudiences && a!=="Everyone"){ pulseTA(); return; }
+  exAudience=a; drawAudSeg(); renderExplorer(); });
+$("#taBox").addEventListener("animationend",()=>$("#taBox").classList.remove("pulse"));
+$("#gameYear").oninput=e=>{ state.gameYear=e.target.value; saveState(); refreshEra(); };
+$("#gameMonth").oninput=e=>{ state.gameMonth=e.target.value; saveState(); refreshEra(); };
+// wheel-to-edit Y/M on hover, no click/focus needed. Blocks page scroll while hovering (passive:false + preventDefault).
+function wheelAdjustDate(e){
+  e.preventDefault();
+  const delta=e.deltaY<0?1:-1;
+  const yEl=$("#gameYear"), mEl=$("#gameMonth");
+  const yMin=yEl.min?+yEl.min:1, yMax=yEl.max?+yEl.max:Infinity;
+  const clampY=v=>Math.min(yMax,Math.max(yMin,v));
+  let y=parseInt(yEl.value,10); if(isNaN(y)) y=yMin;
+  if(e.currentTarget===yEl){
+    yEl.value=clampY(y+delta);
+    yEl.dispatchEvent(new Event("input",{bubbles:true}));
+    return;
+  }
+  let m=parseInt(mEl.value,10); if(isNaN(m)) m=1;
+  m+=delta;
+  if(m>12){ m=1; y=clampY(y+1); }
+  else if(m<1){ m=12; y=clampY(y-1); }
+  mEl.value=m; yEl.value=y;
+  mEl.dispatchEvent(new Event("input",{bubbles:true}));
+  yEl.dispatchEvent(new Event("input",{bubbles:true}));
+}
+$("#gameYear").addEventListener("wheel",wheelAdjustDate,{passive:false});
+$("#gameMonth").addEventListener("wheel",wheelAdjustDate,{passive:false});
+$("#btnTopics").onclick=topicsOverlay;
+$("#btnPlatforms").onclick=platformsOverlay;
+$("#btnGames").onclick=gamesOverlay;
+$("#btnTips").onclick=tipsOverlay;
+$("#btnExport").onclick=()=>{ exportState(); toggleMenu(false); };
+$("#btnImport").onclick=()=>{ $("#fileImport").click(); toggleMenu(false); };
+// internal-review export: only in the TESTING (play-copy) build; the public build leaves it hidden.
+if(TESTING){ $("#btnFlags").hidden=false; $("#btnFlags").onclick=()=>{ exportFlags(); toggleMenu(false); }; }
+$("#fileImport").onchange=e=>{ if(e.target.files[0]) importState(e.target.files[0]); e.target.value=""; };
+["#gMode","#gGenre","#gPrim","#gSec"].forEach(s=>$(s).addEventListener("change",renderGuideTab));
+["#exMode","#exPlat","#exGenre","#exPrim","#exSec","#exTopic"].forEach(s=>$(s).addEventListener("change",renderExplorer));
+
+/* consent + privacy + reset */
+function showConsent(){ $("#consent").hidden=false; }
+function hideConsent(){ $("#consent").hidden=true; }
+$("#consentAccept").onclick=()=>{ state.consent="accepted"; saveState(); hideConsent(); };
+$("#consentDecline").onclick=()=>{ state.consent="declined"; hideConsent(); };   // nothing written to storage
+$("#consentPrivacy").onclick=e=>{ e.preventDefault(); privacyOverlay(); };
+$("#privacyLink").onclick=e=>{ e.preventDefault(); privacyOverlay(); };
+$("#btnPrivacy").onclick=()=>{ toggleMenu(false); privacyOverlay(); };
+$("#btnReset").onclick=()=>{ toggleMenu(false);
+  if(confirm("Reset everything to defaults? This clears your enabled topics & platforms, settings, and game log on this device.")){
+    const c=state.consent; state=clone(DEFAULT_STATE); state.consent=c;
+    if(c==="accepted") saveState(); else { try{localStorage.removeItem(LS_KEY);}catch(e){} }
+    syncControls(); refreshAll();
+  }
+};
+
+/* boot */
+syncControls();
+refreshAll();
+if(state.consent!=="accepted" && state.consent!=="declined") showConsent();
+</script>
+<script>
+  // Anonymous visit counter (GoatCounter, cookieless). Fires only on the live site and
+  // honors Do Not Track; downloaded/offline copies make zero network requests.
+  (function () {
+    if (location.host !== 'gdt-assistant.com') return;
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+    var img = new Image();
+    img.src = 'https://boeloep.goatcounter.com/count' +
+      '?p=' + encodeURIComponent(location.pathname) +
+      '&q=' + encodeURIComponent(location.search.slice(1)) +
+      '&r=' + encodeURIComponent(document.referrer);
+  })();
+</script>
+</body>
+</html>
